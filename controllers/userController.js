@@ -100,11 +100,12 @@ module.exports = {
   },
 
   getUserAddress : (req,res) => {
+    let idUser = req.user.idUser;
     let getQuerry = `SELECT *
     FROM user u
     INNER JOIN address a 
     ON u.id_user = a.id_user 
-    WHERE  a.id_user  = ${req.params.id}`
+    WHERE  a.id_user  = ${idUser}`
     db.query(getQuerry, (err, result) => {
         if(err) {
             console.log(err)
@@ -128,7 +129,6 @@ module.exports = {
   
   updateUser : (req, res) => {
 
-    
    let idUser = req.user.idUser;
    const editData = req.body
    const {username ,email} = req.body
@@ -158,5 +158,95 @@ module.exports = {
 
         // res.status(200).send(result)
       })
+  },
+
+  updateUserAddress : (req,res) => {
+    const editData = req.body
+    let idUser = req.user.idUser;
+    const updateUserAddress = `UPDATE address 
+    SET  
+    address='${editData.address}', 
+    kecamatan='${editData.kecamatan}', 
+    kabupaten='${editData.kabupaten}', 
+    status_aktif='${editData.status_aktif}' 
+    WHERE id_user = ${idUser}`
+    db.query(updateUserAddress, req.body, (err, result) => {
+         if(err) { 
+             console.log(err)
+             res.status(400).send(err)
+         }
+         const getUserAddress = `SELECT *
+         FROM user u
+         INNER JOIN address a 
+         ON u.id_user = a.id_user 
+         WHERE  a.id_user  = ${idUser}`
+         db.query(getUserAddress, (err2, result2) => {
+             if(err2) {
+                 console.log(err2)
+                 res.status(400).send(err2)
+             }
+             res.status(200).send(result2)
+             
+           })
+ 
+         // res.status(200).send(result)
+       })
+  },
+
+  addUserAddress : (req,res) => {
+    const editData = req.body
+    let idUser = req.user.idUser;
+    const addUserAddress = `INSERT INTO address(address, kecamatan, kabupaten, id_user)
+    VALUES 
+    ('${editData.address}', '${editData.kecamatan}', '${editData.kabupaten}', '${idUser}')`;
+    db.query(addUserAddress, req.body, (err, result) => {
+         if(err) { 
+             console.log(err)
+             res.status(400).send(err)
+         }
+         const getUserAddress = `SELECT *
+         FROM user u
+         INNER JOIN address a 
+         ON u.id_user = a.id_user 
+         WHERE  a.id_user  = ${idUser}`;
+         db.query(getUserAddress, (err2, result2) => {
+             if(err2) {
+                 console.log(err2)
+                 res.status(400).send(err2)
+             }
+             res.status(200).send(result2)
+             
+           })
+ 
+         // res.status(200).send(result)
+       })
+  },
+
+  deleteUserAddress : (req,res) => {
+      // const editData = req.body
+      let idUser = req.user.idUser;
+      const addUserAddress = `DELETE FROM address WHERE id_user = '${idUser}'`;
+      db.query(addUserAddress, req.body, (err, result) => {
+          if(err) { 
+              console.log(err)
+              res.status(400).send(err)
+          }
+          const getUserAddress = `SELECT *
+          FROM user u
+          INNER JOIN address a 
+          ON u.id_user = a.id_user 
+          WHERE  a.id_user  = ${idUser}`;
+          db.query(getUserAddress, (err2, result2) => {
+              if(err2) {
+                  console.log(err2)
+                  res.status(400).send(err2)
+              }
+              res.status(200).send(result2)
+              
+            })
+  
+          // res.status(200).send(result)
+        })
   }
+
 };
