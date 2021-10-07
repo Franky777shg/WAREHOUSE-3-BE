@@ -9,5 +9,6 @@ router.get(
   "/auth/verification/:verifEmail",
   userController.accountVerification
 );
+router.put('/change-password/:id', userController.changePass)
 
 module.exports = router;
