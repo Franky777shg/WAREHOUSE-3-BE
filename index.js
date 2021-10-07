@@ -1,11 +1,14 @@
 const express = require("express");
 const cors = require("cors");
+const bearerToken = require("express-bearer-token");
 require("dotenv").config();
 const PORT = 2000;
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(bearerToken());
+
 const { db } = require("./database");
 db.connect((err) => {
   if (err) {
