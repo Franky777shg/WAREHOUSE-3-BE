@@ -14,7 +14,7 @@ module.exports = {
       .update(req.body.password)
       .digest("hex");
 
-    const registerQuery = `INSERT INTO tb_user(username, password, email, full_name, gender, age, profile_picture, status)
+    const registerQuery = `INSERT INTO user(username, password, email, full_name, gender, age, profile_picture, status_verified)
     values ('${userData.username}', '${userData.password}', '${userData.email}', '${userData.name}', '', '', '', 'pending')`;
 
     db.query(registerQuery, (err, result) => {
@@ -30,18 +30,39 @@ module.exports = {
 
   accountVerification: (req, res) => {
     let isUserExist = false;
-    const checkQuery = `SELECT * FROM tb_user where email='${req.params.verifEmail}' AND status='pending' `;
+    const checkQuery = `SELECT * FROM user where email='${req.params.verifEmail}' AND status_verified='pending' `;
     const checkRegisteredAccount = db.query(checkQuery, (error, result) => {
       isUserExist = true;
     });
 
     if (checkRegisteredAccount) {
       db.query(
-        `UPDATE tb_user set status='active' WHERE email='${req.params.verifEmail}'`,
+        `UPDATE user set status_verified ='active' WHERE email='${req.params.verifEmail}'`,
         (error2, result2) => {
           res.status(200).send({ message: "success", data: result2 });
         }
       );
     }
   },
+
+  changePass: (req, res) => {
+    const { password } = req.body
+    
+    //buat input password jadi hash
+    // password = crypto
+    // .createHmac("sha1", process.env.SECRET_KEY)
+    // .update(password)
+    // .digest("hex");
+
+    const updatePass = `update user set password =${db.escape(password)} where id_user=${req.params.id};`
+
+    db.query(updatePass, (errChangePass, resultChangePass) => {
+        if (errChangePass) {
+            console.log(errChangePass)
+            res.status(400).send(errChangePass)
+        }
+
+        res.status(200).send(resultChangePass)
+    })
+}
 };
