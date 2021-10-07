@@ -10,5 +10,8 @@ router.get(
   userController.accountVerification
 );
 router.put('/change-password/:id', userController.changePass)
+router.get('/get-useraddress/:id', userController.getUserAddress)
+router.post('/get-user/',verifyToken, userController.getDataUser)
+router.post('/update-user/',verifyToken, userController.updateUser)
 
 module.exports = router;

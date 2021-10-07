@@ -97,5 +97,66 @@ module.exports = {
 
         res.status(200).send(resultChangePass)
     })
-}
+  },
+
+  getUserAddress : (req,res) => {
+    let getQuerry = `SELECT *
+    FROM user u
+    INNER JOIN address a 
+    ON u.id_user = a.id_user 
+    WHERE  a.id_user  = ${req.params.id}`
+    db.query(getQuerry, (err, result) => {
+        if(err) {
+            console.log(err)
+            res.status(400).send(err)
+        }
+        res.status(200).send(result)
+    })
+  },
+
+  getDataUser : (req, res) => {
+    let idUser = req.user.idUser;
+    let getQuerry = `SELECT * FROM user WHERE id_user = ${idUser}`
+    db.query(getQuerry, (err, result) => {
+        if(err) {
+            console.log(err)
+            res.status(400).send(err)
+        }
+        res.status(200).send(result)
+    })
+  },
+  
+  updateUser : (req, res) => {
+
+    
+   let idUser = req.user.idUser;
+   const editData = req.body
+   const {username ,email} = req.body
+
+   if(!username || !email){
+    res.status(400).send('Field Username Atau Email tidak boleh kosong')
+    return
+  }
+
+   const updateUser = `UPDATE user SET username= '${editData.username}', full_name='${editData.full_name}', 
+   email='${editData.email}', gender='${editData.gender}', age='${editData.age}' WHERE id_user = ${idUser}`
+    db.query(updateUser, req.body, (err, result) => {
+        if(err) { 
+            console.log(err)
+            res.status(400).send(err)
+        }
+        
+        const getuser = `SELECT * FROM user WHERE id_user  = ${idUser}`
+        db.query(getuser, (err2, result2) => {
+            if(err2) {
+                console.log(err2)
+                res.status(400).send(err2)
+            }
+            res.status(200).send(result2)
+            
+          })
+
+        // res.status(200).send(result)
+      })
+  }
 };
