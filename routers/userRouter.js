@@ -10,7 +10,10 @@ router.get(
   userController.accountVerification
 );
 router.put('/change-password/:id', userController.changePass)
-router.get('/get-useraddress/:id', userController.getUserAddress)
+router.post('/get-useraddress/',verifyToken, userController.getUserAddress)
+router.post('/get-update-user-address/',verifyToken, userController.updateUserAddress)
+router.post('/get-add-user-address/',verifyToken, userController.addUserAddress)
+router.post('/get-delete-user-address/',verifyToken, userController.deleteUserAddress)
 router.post('/get-user/',verifyToken, userController.getDataUser)
 router.post('/update-user/',verifyToken, userController.updateUser)
 
