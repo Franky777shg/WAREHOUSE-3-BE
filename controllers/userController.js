@@ -26,6 +26,7 @@ module.exports = {
       }
     });
   },
+
   keepLogin: (req, res) => {
     let idUser = req.user.idUser;
     const getUserDataQuery = `SELECT * from user WHERE id_user='${idUser}'`;
@@ -39,6 +40,7 @@ module.exports = {
       }
     });
   },
+  
   userRegister: (req, res) => {
     const userData = req.body;
     let emailBody = `<a href='${BASE_URL}/auth/verification/${userData.email}' target='_blank'> Click to verif your account </a>`;
@@ -79,9 +81,10 @@ module.exports = {
   },
 
   changePass: (req, res) => {
+    // let idUser = req.user.idUser
     const { password } = req.body
     
-    //buat input password jadi hash
+    // buat input password jadi hash
     // password = crypto
     // .createHmac("sha1", process.env.SECRET_KEY)
     // .update(password)
@@ -94,6 +97,15 @@ module.exports = {
             console.log(errChangePass)
             res.status(400).send(errChangePass)
         }
+
+        // const getuserinfo = `SELECT * from user where id_user =${idUser}`
+        // db.query(getuserinfo, (errUserInfo, resUserInfo) => {
+        //   if (errUserInfo) {
+        //     console.log(errUserInfo)
+        //     res.status(400).send(errUserInfo)
+        //   }
+        //   res.status(200).send(resUserInfo)
+        // })
 
         res.status(200).send(resultChangePass)
     })

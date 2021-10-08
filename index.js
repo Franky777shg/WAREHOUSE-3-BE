@@ -28,8 +28,9 @@ app.get("/", (req, res) => {
   res.status(200).send(`<h1>Welcome to the Warehouse Shop</h1>`);
 });
 
-const { userRouter } = require("./routers");
+const { userRouter, productRouter } = require("./routers");
 app.use("/user", userRouter);
+app.use("/product", productRouter);
 
 
 app.listen(PORT, () => {
