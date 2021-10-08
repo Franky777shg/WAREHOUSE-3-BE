@@ -224,18 +224,17 @@ module.exports = {
 
   deleteUserAddress : (req,res) => {
       // const editData = req.body
-      let idUser = req.user.idUser;
-      const addUserAddress = `DELETE FROM address WHERE id_user = '${idUser}'`;
+      let idAddress = req.params.id
+      const addUserAddress = `DELETE FROM address WHERE id_address = '${idAddress}'`;
       db.query(addUserAddress, req.body, (err, result) => {
           if(err) { 
               console.log(err)
               res.status(400).send(err)
           }
+          // let idUser = req.user.idUser;
           const getUserAddress = `SELECT *
-          FROM user u
-          INNER JOIN address a 
-          ON u.id_user = a.id_user 
-          WHERE  a.id_user  = ${idUser}`;
+          FROM address
+          WHERE  id_address  = ${idAddress}`;
           db.query(getUserAddress, (err2, result2) => {
               if(err2) {
                   console.log(err2)
