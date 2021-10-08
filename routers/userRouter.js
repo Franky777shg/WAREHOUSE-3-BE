@@ -9,6 +9,11 @@ router.get(
   "/auth/verification/:verifEmail",
   userController.accountVerification
 );
+
+const { upload } = require('../helpers/multer')
+const uploader = upload()
+
+
 router.put('/change-password/:id', userController.changePass)
 router.post('/get-useraddress/',verifyToken, userController.getUserAddress)
 router.post('/get-update-user-address/',verifyToken, userController.updateUserAddress)
@@ -16,5 +21,6 @@ router.post('/get-add-user-address/',verifyToken, userController.addUserAddress)
 router.delete('/get-delete-user-address/:id', userController.deleteUserAddress)
 router.post('/get-user/',verifyToken, userController.getDataUser)
 router.post('/update-user/',verifyToken, userController.updateUser)
+router.post('/upload-pic/', uploader,verifyToken, userController.uploadPhoto)
 
 module.exports = router;
