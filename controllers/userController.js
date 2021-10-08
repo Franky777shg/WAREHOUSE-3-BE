@@ -258,6 +258,30 @@ module.exports = {
   
           // res.status(200).send(result)
         })
+  },
+
+  uploadPhoto: (req, res) => {
+    let idUser = req.user.idUser;
+    console.log('req.file', req.file)
+
+    if(!req.file) {
+        res.status(400).send('NO FILE')
+    }
+
+    const updatePict = `UPDATE user SET profile_picture = 'imagesProfile/${req.file.filename}'
+                        WHERE id_user = ${idUser}`
+    db.query(updatePict, (err, result) => {
+        if (err) {
+            console.log(err)
+            res.status(400).send(err)
+        }
+
+        res.status(200).send(result)
+    })
   }
+
+  
+
+
 
 };
