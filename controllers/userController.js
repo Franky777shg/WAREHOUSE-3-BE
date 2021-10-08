@@ -208,9 +208,9 @@ module.exports = {
   addUserAddress : (req,res) => {
     const editData = req.body
     let idUser = req.user.idUser;
-    const addUserAddress = `INSERT INTO address(address, kecamatan, kabupaten, id_user)
+    const addUserAddress = `INSERT INTO address(address, kecamatan, kabupaten, status_aktif, id_user)
     VALUES 
-    ('${editData.address}', '${editData.kecamatan}', '${editData.kabupaten}', '${idUser}')`;
+    ('${editData.address}', '${editData.kecamatan}', '${editData.kabupaten}','${editData.status_aktif}', '${idUser}')`;
     db.query(addUserAddress, req.body, (err, result) => {
          if(err) { 
              console.log(err)
