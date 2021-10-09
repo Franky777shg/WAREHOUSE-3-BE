@@ -208,9 +208,9 @@ module.exports = {
   addUserAddress : (req,res) => {
     const editData = req.body
     let idUser = req.user.idUser;
-    const addUserAddress = `INSERT INTO address(address, kecamatan, kabupaten, id_user)
+    const addUserAddress = `INSERT INTO address(address, kecamatan, kabupaten, status_aktif, id_user)
     VALUES 
-    ('${editData.address}', '${editData.kecamatan}', '${editData.kabupaten}', '${idUser}')`;
+    ('${editData.address}', '${editData.kecamatan}', '${editData.kabupaten}','${editData.status_aktif}', '${idUser}')`;
     db.query(addUserAddress, req.body, (err, result) => {
          if(err) { 
              console.log(err)
@@ -259,6 +259,25 @@ module.exports = {
           // res.status(200).send(result)
         })
   },
+  
+  uploadPhoto: (req, res) => {
+    let idUser = req.user.idUser;
+    console.log('req.file', req.file)
 
+    if(!req.file) {
+        res.status(400).send('NO FILE')
+    }
+
+    const updatePict = `UPDATE user SET profile_picture = 'imagesProfile/${req.file.filename}'
+                        WHERE id_user = ${idUser}`
+    db.query(updatePict, (err, result) => {
+        if (err) {
+            console.log(err)
+            res.status(400).send(err)
+        }
+
+        res.status(200).send(result)
+    })
+  }
 
 };
