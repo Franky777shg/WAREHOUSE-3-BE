@@ -259,7 +259,7 @@ module.exports = {
           // res.status(200).send(result)
         })
   },
-
+  
   uploadPhoto: (req, res) => {
     let idUser = req.user.idUser;
     console.log('req.file', req.file)
@@ -279,9 +279,5 @@ module.exports = {
         res.status(200).send(result)
     })
   }
-
-  
-
-
 
 };
