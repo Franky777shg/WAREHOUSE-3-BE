@@ -22,5 +22,6 @@ router.delete('/get-delete-user-address/:id', userController.deleteUserAddress)
 router.post('/get-user/',verifyToken, userController.getDataUser)
 router.post('/update-user/',verifyToken, userController.updateUser)
 router.post('/upload-pic/', uploader,verifyToken, userController.uploadPhoto)
+router.post('/delete-pic/', verifyToken, userController.deleteUserPhoto)
 
 module.exports = router;
