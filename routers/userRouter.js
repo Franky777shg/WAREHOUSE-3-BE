@@ -18,7 +18,7 @@ const { upload } = require('../helpers/multer')
 const uploader = upload()
 
 
-router.put('/change-password/:id', userController.changePass)
+router.post('/change-password/', verifyToken, userController.changePass)
 router.post('/get-useraddress/',verifyToken, userController.getUserAddress)
 router.post('/get-update-user-address/',verifyToken, userController.updateUserAddress)
 router.post('/get-add-user-address/',verifyToken, userController.addUserAddress)
