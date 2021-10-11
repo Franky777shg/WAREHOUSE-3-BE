@@ -5,6 +5,11 @@ require("dotenv").config();
 const PORT = 2000;
 const app = express();
 
+// var path = require('path');
+// var dir = path.join(__dirname, 'public');
+// app.use(express.static(dir));
+app.use(express.static("./public"))
+
 app.use(cors());
 app.use(express.json());
 app.use(bearerToken());
@@ -20,11 +25,13 @@ db.connect((err) => {
 });
 
 app.get("/", (req, res) => {
-  res.status(200).send(`<h1>Welcome to My API!</h1>`);
+  res.status(200).send(`<h1>Welcome to the Warehouse Shop</h1>`);
 });
 
-const { userRouter } = require("./routers");
+const { userRouter, productRouter } = require("./routers");
 app.use("/user", userRouter);
+app.use("/product", productRouter);
+
 
 app.listen(PORT, () => {
   console.log(`Server running at PORT: ${PORT}`);

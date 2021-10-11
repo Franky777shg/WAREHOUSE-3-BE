@@ -26,6 +26,7 @@ module.exports = {
       }
     });
   },
+
   keepLogin: (req, res) => {
     let idUser = req.user.idUser;
     const getUserDataQuery = `SELECT * from user WHERE id_user='${idUser}'`;
@@ -38,6 +39,7 @@ module.exports = {
       }
     });
   },
+  
   userRegister: (req, res) => {
     const userData = req.body;
     let token = createToken({
@@ -50,8 +52,7 @@ module.exports = {
       .update(req.body.password)
       .digest("hex");
 
-    const registerQuery = `INSERT INTO user(username, password, email, full_name, gender, age, profile_picture, status_verified)
-    values ('${userData.username}', '${userData.password}', '${userData.email}', '${userData.name}', '', '', '', 'pending')`;
+    const registerQuery = `INSERT INTO user(username, password, email, full_name, gender, age, profile_picture, status_verified) values ('${userData.username}', '${userData.password}', '${userData.email}', '${userData.name}', '', '', '', 'pending')`;
 
     db.query(registerQuery, (err, result) => {
       if (err) {
@@ -67,8 +68,9 @@ module.exports = {
   accountVerification: (req, res) => {
     const checkQuery = `SELECT * FROM user where email='${req.user.email}' AND status_verified='pending' `;
     db.query(checkQuery, (error, result) => {
-      db.query(
-        `UPDATE user set status_verified='active' WHERE email='${req.user.email}'`,
+       db.query(
+        `UPDATE user set status_verified ='active' WHERE email='${req.params.verifEmail}'`,
+
         (error2, result2) => {
           res.status(200).send({ message: "user_activated" });
         }
@@ -113,4 +115,229 @@ module.exports = {
       }
     });
   },
+
+  changePass: (req, res) => {
+    // let idUser = req.user.idUser
+    const { password } = req.body
+    
+    // buat input password jadi hash
+    // password = crypto
+    // .createHmac("sha1", process.env.SECRET_KEY)
+    // .update(password)
+    // .digest("hex");
+
+    const updatePass = `update user set password =${db.escape(password)} where id_user=${req.params.id};`
+
+    db.query(updatePass, (errChangePass, resultChangePass) => {
+        if (errChangePass) {
+            console.log(errChangePass)
+            res.status(400).send(errChangePass)
+        }
+
+        // const getuserinfo = `SELECT * from user where id_user =${idUser}`
+        // db.query(getuserinfo, (errUserInfo, resUserInfo) => {
+        //   if (errUserInfo) {
+        //     console.log(errUserInfo)
+        //     res.status(400).send(errUserInfo)
+        //   }
+        //   res.status(200).send(resUserInfo)
+        // })
+
+        res.status(200).send(resultChangePass)
+    })
+  },
+
+  getUserAddress : (req,res) => {
+    let idUser = req.user.idUser;
+    let getQuerry = `SELECT *
+    FROM user u
+    INNER JOIN address a 
+    ON u.id_user = a.id_user 
+    WHERE  a.id_user  = ${idUser}`
+    db.query(getQuerry, (err, result) => {
+        if(err) {
+            console.log(err)
+            res.status(400).send(err)
+        }
+        res.status(200).send(result)
+    })
+  },
+
+  getDataUser : (req, res) => {
+    let idUser = req.user.idUser;
+    let getQuerry = `SELECT * FROM user WHERE id_user = ${idUser}`
+    db.query(getQuerry, (err, result) => {
+        if(err) {
+            console.log(err)
+            res.status(400).send(err)
+        }
+        res.status(200).send(result)
+    })
+  },
+  
+  updateUser : (req, res) => {
+
+   let idUser = req.user.idUser;
+   const editData = req.body
+   const {username ,email} = req.body
+
+   if(!username || !email){
+    res.status(400).send('Field Username Atau Email tidak boleh kosong')
+    return
+  }
+
+   const updateUser = `UPDATE user SET username= '${editData.username}', full_name='${editData.full_name}', 
+   email='${editData.email}', gender='${editData.gender}', age='${editData.age}' WHERE id_user = ${idUser}`
+    db.query(updateUser, req.body, (err, result) => {
+        if(err) { 
+            console.log(err)
+            res.status(400).send(err)
+        }
+        
+        const getuser = `SELECT * FROM user WHERE id_user  = ${idUser}`
+        db.query(getuser, (err2, result2) => {
+            if(err2) {
+                console.log(err2)
+                res.status(400).send(err2)
+            }
+            res.status(200).send(result2)
+            
+          })
+
+        // res.status(200).send(result)
+      })
+  },
+
+  updateUserAddress : (req,res) => {
+    const editData = req.body
+    let idUser = req.user.idUser;
+    const updateUserAddress = `UPDATE address 
+    SET  
+    address='${editData.address}', 
+    kecamatan='${editData.kecamatan}', 
+    kabupaten='${editData.kabupaten}', 
+    status_aktif='${editData.status_aktif}' 
+    WHERE id_user = ${idUser}`
+    db.query(updateUserAddress, req.body, (err, result) => {
+         if(err) { 
+             console.log(err)
+             res.status(400).send(err)
+         }
+         const getUserAddress = `SELECT *
+         FROM user u
+         INNER JOIN address a 
+         ON u.id_user = a.id_user 
+         WHERE  a.id_user  = ${idUser}`
+         db.query(getUserAddress, (err2, result2) => {
+             if(err2) {
+                 console.log(err2)
+                 res.status(400).send(err2)
+             }
+             res.status(200).send(result2)
+             
+           })
+ 
+         // res.status(200).send(result)
+       })
+  },
+
+  addUserAddress : (req,res) => {
+    const editData = req.body
+    let idUser = req.user.idUser;
+    const addUserAddress = `INSERT INTO address(address, kecamatan, kabupaten, status_aktif, id_user)
+    VALUES 
+    ('${editData.address}', '${editData.kecamatan}', '${editData.kabupaten}','${editData.status_aktif}', '${idUser}')`;
+    db.query(addUserAddress, req.body, (err, result) => {
+         if(err) { 
+             console.log(err)
+             res.status(400).send(err)
+         }
+         const getUserAddress = `SELECT *
+         FROM user u
+         INNER JOIN address a 
+         ON u.id_user = a.id_user 
+         WHERE  a.id_user  = ${idUser}`;
+         db.query(getUserAddress, (err2, result2) => {
+             if(err2) {
+                 console.log(err2)
+                 res.status(400).send(err2)
+             }
+             res.status(200).send(result2)
+             
+           })
+ 
+         // res.status(200).send(result)
+       })
+  },
+
+  deleteUserAddress : (req,res) => {
+      // const editData = req.body
+      let idAddress = req.params.id
+      const addUserAddress = `DELETE FROM address WHERE id_address = '${idAddress}'`;
+      db.query(addUserAddress, req.body, (err, result) => {
+          if(err) { 
+              console.log(err)
+              res.status(400).send(err)
+          }
+          // let idUser = req.user.idUser;
+          const getUserAddress = `SELECT *
+          FROM address
+          WHERE  id_address  = ${idAddress}`;
+          db.query(getUserAddress, (err2, result2) => {
+              if(err2) {
+                  console.log(err2)
+                  res.status(400).send(err2)
+              }
+              res.status(200).send(result2)
+              
+            })
+  
+          // res.status(200).send(result)
+        })
+  },
+  
+  uploadPhoto: (req, res) => {
+    let idUser = req.user.idUser;
+    console.log('req.file', req.file)
+
+    if(!req.file) {
+        res.status(400).send('NO FILE')
+    }
+
+    const updatePict = `UPDATE user SET profile_picture = 'imagesProfile/${req.file.filename}'
+                        WHERE id_user = ${idUser}`
+    db.query(updatePict, (err, result) => {
+        if (err) {
+            console.log(err)
+            res.status(400).send(err)
+        }
+
+        res.status(200).send(result)
+    })
+  },
+
+  deleteUserPhoto : (req,res) => {
+    // const editData = req.body
+    let idUser = req.user.idUser;
+    const deleteUserAddress = `UPDATE user SET profile_picture = '' WHERE id_user = ${idUser}`;
+    db.query(deleteUserAddress, req.body, (err, result) => {
+        if(err) { 
+            console.log(err)
+            res.status(400).send(err)
+        }
+        // let idUser = req.user.idUser;
+        const getuserpic = `SELECT * FROM user WHERE id_user  = ${idUser} `;
+        db.query(getuserpic, (err2, result2) => {
+            if(err2) {
+                console.log(err2)
+                res.status(400).send(err2)
+            }
+            res.status(200).send(result2)
+            
+          })
+
+        // res.status(200).send(result)
+      })
+},
+
 };
