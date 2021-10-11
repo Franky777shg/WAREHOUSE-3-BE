@@ -278,6 +278,30 @@ module.exports = {
 
         res.status(200).send(result)
     })
-  }
+  },
+
+  deleteUserPhoto : (req,res) => {
+    // const editData = req.body
+    let idUser = req.user.idUser;
+    const deleteUserAddress = `UPDATE user SET profile_picture = '' WHERE id_user = ${idUser}`;
+    db.query(deleteUserAddress, req.body, (err, result) => {
+        if(err) { 
+            console.log(err)
+            res.status(400).send(err)
+        }
+        // let idUser = req.user.idUser;
+        const getuserpic = `SELECT * FROM user WHERE id_user  = ${idUser} `;
+        db.query(getuserpic, (err2, result2) => {
+            if(err2) {
+                console.log(err2)
+                res.status(400).send(err2)
+            }
+            res.status(200).send(result2)
+            
+          })
+
+        // res.status(200).send(result)
+      })
+},
 
 };
