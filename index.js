@@ -8,7 +8,7 @@ const app = express();
 // var path = require('path');
 // var dir = path.join(__dirname, 'public');
 // app.use(express.static(dir));
-app.use(express.static("./public"))
+app.use(express.static("./public"));
 
 app.use(cors());
 app.use(express.json());
@@ -28,10 +28,10 @@ app.get("/", (req, res) => {
   res.status(200).send(`<h1>Welcome to the Warehouse Shop</h1>`);
 });
 
-const { userRouter, productRouter } = require("./routers");
+const { userRouter, productRouter, adminRouter } = require("./routers");
 app.use("/user", userRouter);
 app.use("/product", productRouter);
-
+app.use("/admin", adminRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running at PORT: ${PORT}`);
