@@ -28,10 +28,11 @@ app.get("/", (req, res) => {
   res.status(200).send(`<h1>Welcome to the Warehouse Shop</h1>`);
 });
 
-const { userRouter, productRouter, adminRouter } = require("./routers");
+const { userRouter, productRouter, adminRouter, adminProductRouter } = require("./routers");
 app.use("/user", userRouter);
 app.use("/product", productRouter);
 app.use("/admin", adminRouter);
+app.use("/prod-admin", adminProductRouter)
 
 app.listen(PORT, () => {
   console.log(`Server running at PORT: ${PORT}`);

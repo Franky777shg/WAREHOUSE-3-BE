@@ -291,6 +291,24 @@ module.exports = {
                 })
             })
         }
+    },
+
+    getProductDetail:(req, res) =>{
+        let prodDetail =  `select * from product p1
+        inner join categories c1 on p1.id_categories = c1.id_categories
+        inner join (select id_product,  sum(stock_avail) as TotalStockAvail 
+        from stock group by id_product order by TotalStockAvail) s1
+        on p1.id_product = s1.id_product
+        where p1.id_product = ${req.params.idprod}
+        group by p1.id_product ;`
+
+        db.query(prodDetail, (errProductDetail, resProductDetail) => {
+            if(errProductDetail) {
+                console.log(errProductDetail)
+                res.status(400).send(errProductDetail)
+            }
+            res.status(200).send(resProductDetail[0])
+        })
     }
 }
 

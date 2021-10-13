@@ -117,36 +117,25 @@ module.exports = {
   },
 
   changePass: (req, res) => {
-    // let idUser = req.user.idUser
-    const { password } = req.body;
-
+    let idUser = req.user.idUser
+    let password  = req.body
+    
     // buat input password jadi hash
-    // password = crypto
-    // .createHmac("sha1", process.env.SECRET_KEY)
-    // .update(password)
-    // .digest("hex");
+    password = crypto
+    .createHmac("sha1", process.env.SECRET_KEY)
+    .update(req.body.password)
+    .digest("hex");
 
-    const updatePass = `update user set password =${db.escape(
-      password
-    )} where id_user=${req.params.id};`;
+    const updatePass = `update user set password =${db.escape(password)} where id_user=${idUser};`
 
     db.query(updatePass, (errChangePass, resultChangePass) => {
       if (errChangePass) {
         console.log(errChangePass);
         res.status(400).send(errChangePass);
       }
-
-      // const getuserinfo = `SELECT * from user where id_user =${idUser}`
-      // db.query(getuserinfo, (errUserInfo, resUserInfo) => {
-      //   if (errUserInfo) {
-      //     console.log(errUserInfo)
-      //     res.status(400).send(errUserInfo)
-      //   }
-      //   res.status(200).send(resUserInfo)
-      // })
-
-      res.status(200).send(resultChangePass);
-    });
+      
+        res.status(200).send(resultChangePass)
+    })
   },
 
   getUserAddress: (req, res) => {
