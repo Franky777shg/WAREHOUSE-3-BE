@@ -16,9 +16,6 @@ router.post(
   userController.accountVerification
 );
 
-const { upload } = require('../helpers/multer')
-const uploader = upload()
-
 
 router.post('/change-password/', verifyToken, userController.changePass)
 router.post('/get-useraddress/',verifyToken, userController.getUserAddress)
