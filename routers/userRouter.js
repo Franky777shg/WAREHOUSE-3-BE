@@ -28,4 +28,5 @@ router.post('/update-user/',verifyToken, userController.updateUser)
 router.post('/upload-pic/', uploader,verifyToken, userController.uploadPhoto)
 router.post('/delete-pic/', verifyToken, userController.deleteUserPhoto)
 
+
 module.exports = router;

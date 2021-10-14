@@ -133,7 +133,6 @@ module.exports = {
             console.log(errChangePass)
             res.status(400).send(errChangePass)
         }
-
         // const getuserinfo = `SELECT * from user where id_user =${idUser}`
         // db.query(getuserinfo, (errUserInfo, resUserInfo) => {
         //   if (errUserInfo) {
