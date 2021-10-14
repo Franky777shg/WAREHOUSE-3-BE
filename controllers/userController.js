@@ -133,7 +133,6 @@ module.exports = {
         console.log(errChangePass);
         res.status(400).send(errChangePass);
       }
-      
         res.status(200).send(resultChangePass)
     })
   },
