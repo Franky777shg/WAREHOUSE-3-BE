@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const { userController } = require("../controllers");
-const { verifyToken, verifyBodyToken } = require("../helpers/jwt");
+const { verifyToken } = require("../helpers/jwt");
+const { upload } = require("../helpers/multer");
+const uploader = upload();
 
 router.post("/auth/login", userController.userLogin);
 router.post("/auth/keepLogin", verifyToken, userController.keepLogin);
@@ -13,9 +15,6 @@ router.post(
   verifyToken,
   userController.accountVerification
 );
-
-const { upload } = require('../helpers/multer')
-const uploader = upload()
 
 
 router.post('/change-password/', verifyToken, userController.changePass)
