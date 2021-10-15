@@ -1,4 +1,4 @@
-const { db } = require('../database')
+const { db } = require('../../database')
 
 module.exports = {
     getAllProdAdmin: (req, res) => {
@@ -93,9 +93,9 @@ module.exports = {
         })
     },
 
-    uploadEditProdDetail: (req, res) => {
+    uploadEditProdDetail: (req, res) => { 
         const id = +req.params.id
-        console.log("file",req.file)
+        console.log("file", req.file)
 
         if (!req.file) {
             res.status(400).send('NO FILE UPLOADED')
@@ -116,31 +116,95 @@ module.exports = {
             where p1.id_product = ${req.params.id}
             group by p1.id_product;`
 
-            db.query(prodImgUpdated,(errProdImgUpdated, resProdImgUpdated) => {
-                if(errProdImgUpdated){
+            db.query(prodImgUpdated, (errProdImgUpdated, resProdImgUpdated) => {
+                if (errProdImgUpdated) {
                     console.log(errProdImgUpdated)
                     res.status(400).send(errProdImgUpdated)
                 }
                 let resultUploadImg = resProdImgUpdated
-                resultUploadImg.push({success: true})
+                resultUploadImg.push({ success: true })
                 res.status(200).send(resultUploadImg)
             })
         })
     },
 
-    editStock: (req, res)=>{
-        const {stockOp, idx} =req.body
-        let editStockOp =`UPDATE warehouse.stock 
+    editStock: (req, res) => { //di edit product admin page
+        const { stockOp, idx } = req.body
+        let editStockOp = `UPDATE warehouse.stock 
         SET stock_op = ${stockOp} 
         WHERE (id_product = ${req.params.id}) AND (id_warehouse = ${idx});`
 
-        db.query(editStockOp,(errEditStockOp, resEditStockOp) => {
-            if(errEditStockOp){
+        db.query(editStockOp, (errEditStockOp, resEditStockOp) => {
+            if (errEditStockOp) {
                 console.log(errEditStockOp)
                 res.status(400).send(errEditStockOp)
             }
             res.status(200).send(resEditStockOp)
         })
-    }
+    },
+
+    addProduct: (req, res) => { 
+        const {name, category, description, price} = req.body
+        console.log(req.body)
+
+        if(!name || !category || !description || !price){
+            res.status(400).send("Please input all of data !")
+        }
+
+        let addProduct = `insert into product(product_name, id_categories, product_price, productimg, product_description )
+        values(${db.escape(name)}, ${db.escape(category)}, ${db.escape(price)}, "pics", ${db.escape(description)});`
+
+        db.query(addProduct, (errAddProduct, resAddProduct)=>{
+            if(errAddProduct){
+                console.log(errAddProduct)
+                res.status(400).send(errAddProduct)
+            }
+            let getProdIDupdated = `select id_product from product where product_name=${db.escape(name)} and product_price=${db.escape(price)}`
+            db.query(getProdIDupdated, (errGetProdID, resGetProdID)=>{
+                if(errGetProdID){
+                    console.log(errGetProdID)
+                    res.status(400).send(errGetProdID)
+                }
+                res.status(200).send(resGetProdID[0])
+            })
+        })
+    },
+
+    // addCategories: (req, res) => {
+    //     const {cate_name} =req.body
+    //     let addCate = `insert into categories(category_name)
+    //     values(${db.escape(cate_name)}`
+
+    //     db.query(cate_name,(errAddCate, resAddCate)=>{
+    //         if(errAddCate){
+    //             console.log(errAddCate)
+    //             res.status(400).send(errAddCate)
+    //         }
+    //         res.status(200).send(resAddCate)
+    //     })
+    // },
+
+    // editCategories: (req, res)=>{
+    //     const{cate_name}= req.body
+    //     let updateCate = `update categories set category_name=${db.escape(cate_name)} where id_categories=${req.params.id};`
+    //     db.query(updateCate,(errUpdateCate, resUpdateCate)=>{
+    //         if(errUpdateCate){
+    //             console.log(errUpdateCate)
+    //             res.status(400).send(errUpdateCate)
+    //         }
+    //         res.status(200).send('Category has been edited')
+    //     })
+    // },
+
+    // deleteCategories: (req, res)=>{
+    //     let delCate = `delete from categories where id_categories=${req.params.id};`
+    //     db.query(delCate,(errDelCate, resDelCate)=>{
+    //         if(errDelCate){
+    //             console.log(errDelCate)
+    //             res.status(400).send(errDelCate)
+    //         }
+    //         res.status(200).send(resDelCate)
+    //     })
+    // },
 
 }
