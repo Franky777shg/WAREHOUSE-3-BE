@@ -40,41 +40,5 @@ module.exports = {
     });
   },
 
-  getWarehouseData : (req,res) => {
-    let getWarehouseData = `SELECT warehouse_name,warehouse_address,warehouse_kecamatan,warehouse_kabupaten,warehouse_provinsi
-    FROM warehouse`    
-    db.query(getWarehouseData, (err, result) => {
-        if(err) {
-            console.log(err)
-            res.status(400).send(err)
-        }
-        res.status(200).send(result)
-    })  
-  },
 
-  addWarehouse : (req,res) => {
-    const editData = req.body
-    const addWarehouse = `INSERT INTO warehouse(warehouse_name, warehouse_address, warehouse_kecamatan, warehouse_kabupaten,
-        warehouse_provinsi)
-    VALUES 
-    ('${editData.warehouse_name}', '${editData.warehouse_address}', '${editData.warehouse_kecamatan}',
-    '${editData.warehouse_kabupaten}','${editData.warehouse_provinsi}')`;
-
-    db.query(addWarehouse, (err, result) => {
-        if(err) {
-            console.log(err)
-            res.status(400).send(err)
-        }
-            let getWarehouse = `SELECT warehouse_name,warehouse_address,warehouse_kecamatan,warehouse_kabupaten,warehouse_provinsi
-            FROM warehouse`    
-            db.query(getWarehouse, (err2, result2) => {
-                if(err) {
-                    console.log(err)
-                    res.status(400).send(err2)
-                }
-            res.status(200).send(result2)
-        })
-    // res.status(200).send(result)
-    })
-}
 };
