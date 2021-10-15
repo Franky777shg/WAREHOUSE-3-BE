@@ -23,6 +23,13 @@ module.exports = {
 
   addWarehouse : (req,res) => {
     const editData = req.body
+
+    const { warehouse_name, warehouse_address, warehouse_kecamatan, warehouse_kabupaten, warehouse_provinsi } = req.body;
+
+    if (!warehouse_name || !warehouse_address || !warehouse_kecamatan || !warehouse_kabupaten  || !warehouse_provinsi) {
+      res.status(400).send("Tidak Boleh Input Kosong");
+      return;
+    }
     const addWarehouse = `INSERT INTO warehouse(warehouse_name, warehouse_address, warehouse_kecamatan, warehouse_kabupaten,
         warehouse_provinsi, id_admin)
     VALUES 
