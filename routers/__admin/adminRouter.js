@@ -8,5 +8,5 @@ router.get("/get-warehousedata", superAdminController.getWarehouseData);
 router.post("/add-warehousedata", superAdminController.addWarehouse);
 router.get("/get-admindata", superAdminController.getDataAdmin);
 router.put("/update-warehousedata/:id", superAdminController.updateWarehouse);
-
+router.get("/get-transactionlist",adminController.getlistTransaction)
 module.exports = router;
