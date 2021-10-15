@@ -40,41 +40,22 @@ module.exports = {
     });
   },
 
-  getWarehouseData : (req,res) => {
-    let getWarehouseData = `SELECT warehouse_name,warehouse_address,warehouse_kecamatan,warehouse_kabupaten,warehouse_provinsi
-    FROM warehouse`    
-    db.query(getWarehouseData, (err, result) => {
-        if(err) {
-            console.log(err)
-            res.status(400).send(err)
-        }
-        res.status(200).send(result)
-    })  
-  },
-
-  addWarehouse : (req,res) => {
-    const editData = req.body
-    const addWarehouse = `INSERT INTO warehouse(warehouse_name, warehouse_address, warehouse_kecamatan, warehouse_kabupaten,
-        warehouse_provinsi)
-    VALUES 
-    ('${editData.warehouse_name}', '${editData.warehouse_address}', '${editData.warehouse_kecamatan}',
-    '${editData.warehouse_kabupaten}','${editData.warehouse_provinsi}')`;
-
-    db.query(addWarehouse, (err, result) => {
-        if(err) {
-            console.log(err)
-            res.status(400).send(err)
-        }
-            let getWarehouse = `SELECT warehouse_name,warehouse_address,warehouse_kecamatan,warehouse_kabupaten,warehouse_provinsi
-            FROM warehouse`    
-            db.query(getWarehouse, (err2, result2) => {
-                if(err) {
-                    console.log(err)
-                    res.status(400).send(err2)
-                }
-            res.status(200).send(result2)
-        })
-    // res.status(200).send(result)
-    })
-}
+  getlistTransaction: (req, res) => {
+    const getTransaction = `SELECT full_name, address, kecamatan, kabupaten, total_price, quantity, product_name
+    FROM transaction t 
+    INNER JOIN address a
+          ON t.id_user=a.id_user
+    INNER JOIN user u
+          ON t.id_user=u.id_user
+    INNER JOIN product pr
+          ON t.id_product= pr.id_product`
+          db.query(getTransaction, (err, result) => {
+            if (err) res.status(400).send(err);
+            if (result.length === 0) {
+              res.status(200).send(err);
+            } else {
+              res.status(200).send(result);
+            }
+          });
+  }
 };
