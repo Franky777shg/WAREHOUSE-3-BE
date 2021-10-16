@@ -48,7 +48,7 @@ module.exports = {
     INNER JOIN user u
           ON t.id_user=u.id_user
     INNER JOIN product pr
-          ON t.id_product= pr.id_product`
+          ON t.id_product= pr.id_product;`
           db.query(getTransaction, (err, result) => {
             if (err) res.status(400).send(err);
             if (result.length === 0) {
