@@ -39,4 +39,46 @@ module.exports = {
       }
     });
   },
+
+  getlistTransaction: (req, res) => {
+    const getTransaction = `SELECT full_name, address, kecamatan, kabupaten, total_price, quantity, product_name
+    FROM transaction t 
+    INNER JOIN address a
+          ON t.id_user=a.id_user
+    INNER JOIN user u
+          ON t.id_user=u.id_user
+    INNER JOIN product pr
+          ON t.id_product= pr.id_product;`
+          db.query(getTransaction, (err, result) => {
+            if (err) res.status(400).send(err);
+            if (result.length === 0) {
+              res.status(200).send(err);
+            } else {
+              res.status(200).send(result);
+            }
+          });
+  },
+
+  filterTransaction:  (req, res) => {
+    const {full_name} = req.body;
+    const filterquerry = ` SELECT full_name, address, kecamatan, kabupaten, total_price, quantity, product_name
+    FROM transaction t 
+    INNER JOIN address a
+          ON t.id_user=a.id_user
+    INNER JOIN user u
+          ON t.id_user=u.id_user
+    INNER JOIN product pr
+          ON t.id_product= pr.id_product
+    WHERE full_name LIKE '%${full_name}%';`
+    // OR address LIKE '%${editData}%' OR kecamatan LIKE '%${editData}%' 
+    // OR kabupaten LIKE '%${editData}%'
+    // OR total_price LIKE '%${editData}%' OR quantity LIKE '%${editData}%'  OR product_name LIKE '%${editData}%'
+    db.query(filterquerry, (err, result) => {
+      if (err) {
+        console.log(err);
+        res.status(400).send(err);
+      }
+      res.status(200).send(result);
+    });
+  }
 };
