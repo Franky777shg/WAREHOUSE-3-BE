@@ -7,7 +7,6 @@ module.exports = {
         const perPage = parseInt(req.query.perPage) || 8 //default query per page
         let totalProd
         let countItems = `select count(*) as totalItemAdmin from product;`
-
         db.query(countItems, (errCountItem, resCountItem) => {
             if (errCountItem) {
                 res.status(400).send(errCountItem)
@@ -166,6 +165,40 @@ module.exports = {
                     res.status(400).send(errGetProdID)
                 }
                 res.status(200).send(resGetProdID[0])
+            })
+        })
+    },
+
+    deleteProduct: (req, res)=>{
+        const prodName = req.params.name
+        let delProd = `delete from product where id_product = ${db.escape(req.params.id)};`
+        db.query(delProd,(errDelProd, resDelProd)=>{
+            if(errDelProd){
+                console.log(errDelProd)
+                res.status(400).send(errDelProd)
+            }
+            const currentPage = parseInt(req.params.page) || 1
+            const perPage = parseInt(req.params.perPage) || 8
+
+            let totalProd
+
+            let countItems =`select count(*) as totalItemAdmin from product;`
+            db.query(countItems,(errCountItem, resCountItem)=>{
+                if(errCountItem){
+                    res.status(400).send(errCountItem)
+                }
+                totalProd=resCountItem[0]
+
+                let getProd= `select * from product limit ${db.escape((currentPage - 1) * perPage)}, ${db.escape(perPage)}`
+
+                db.query(getProd,(errGetProd, resGetProd)=>{
+                    if(errGetProd){
+                        res.status(400).send(errGetProd)
+                    }
+                    let resultProduct = []
+                    resultProduct.push(resGetProd, {current_page: currentPage}, {per_page: perPage}, totalProd, {message: `${prodName} successfully deleted`})
+                    res.status(200).send(resultProduct)
+                })
             })
         })
     },

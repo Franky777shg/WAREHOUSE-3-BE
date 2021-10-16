@@ -12,4 +12,5 @@ router.get('/get-detail-stock-op/:id', adminProductController.getProdDetailStock
 router.post('/edit-detailfoto/:id', uploader, adminProductController.uploadEditProdDetail)
 router.post('/edit-stock/:id', adminProductController.editStock)
 router.post('/add-product', adminProductController.addProduct)
+router.get('/delete-product/:id/:page/:name', adminProductController.deleteProduct)
 module.exports = router
