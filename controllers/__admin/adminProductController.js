@@ -81,7 +81,7 @@ module.exports = {
     getProdDetailStockOperational: (req, res) => {
         let getStockOp = `select p1.id_product, w1.id_warehouse, s1.stock_op, p1.product_name, w1.warehouse_name from stock s1
         inner join product p1 on p1.id_product = s1.id_product
-        inner join warehouse w1 on s1.id_warehouse = w1.id_warehouse
+        inner join wh w1 on s1.id_warehouse = w1.id_warehouse
         where p1.id_product= ${req.params.id};`
         db.query(getStockOp, (errGetStockOp, resGetStockOp) => {
             if (errGetStockOp) {
@@ -92,7 +92,7 @@ module.exports = {
         })
     },
 
-    uploadEditProdDetail: (req, res) => { 
+    uploadEditProdDetail: (req, res) => {
         const id = +req.params.id
         console.log("file", req.file)
 
@@ -129,7 +129,7 @@ module.exports = {
 
     editStock: (req, res) => { //di edit product admin page
         const { stockOp, idx } = req.body
-        let editStockOp = `UPDATE warehouse.stock 
+        let editStockOp = `UPDATE warehouse.stock
         SET stock_op = ${stockOp} 
         WHERE (id_product = ${req.params.id}) AND (id_warehouse = ${idx});`
 
@@ -142,25 +142,25 @@ module.exports = {
         })
     },
 
-    addProduct: (req, res) => { 
-        const {name, category, description, price} = req.body
+    addProduct: (req, res) => {
+        const { name, category, description, price } = req.body
         console.log(req.body)
 
-        if(!name || !category || !description || !price){
+        if (!name || !category || !description || !price) {
             res.status(400).send("Please input all of data !")
         }
 
         let addProduct = `insert into product(product_name, id_categories, product_price, productimg, product_description )
         values(${db.escape(name)}, ${db.escape(category)}, ${db.escape(price)}, "pics", ${db.escape(description)});`
 
-        db.query(addProduct, (errAddProduct, resAddProduct)=>{
-            if(errAddProduct){
+        db.query(addProduct, (errAddProduct, resAddProduct) => {
+            if (errAddProduct) {
                 console.log(errAddProduct)
                 res.status(400).send(errAddProduct)
             }
             let getProdIDupdated = `select id_product from product where product_name=${db.escape(name)} and product_price=${db.escape(price)}`
-            db.query(getProdIDupdated, (errGetProdID, resGetProdID)=>{
-                if(errGetProdID){
+            db.query(getProdIDupdated, (errGetProdID, resGetProdID) => {
+                if (errGetProdID) {
                     console.log(errGetProdID)
                     res.status(400).send(errGetProdID)
                 }
@@ -169,11 +169,11 @@ module.exports = {
         })
     },
 
-    deleteProduct: (req, res)=>{
+    deleteProduct: (req, res) => {
         const prodName = req.params.name
         let delProd = `delete from product where id_product = ${db.escape(req.params.id)};`
-        db.query(delProd,(errDelProd, resDelProd)=>{
-            if(errDelProd){
+        db.query(delProd, (errDelProd, resDelProd) => {
+            if (errDelProd) {
                 console.log(errDelProd)
                 res.status(400).send(errDelProd)
             }
@@ -182,27 +182,185 @@ module.exports = {
 
             let totalProd
 
-            let countItems =`select count(*) as totalItemAdmin from product;`
-            db.query(countItems,(errCountItem, resCountItem)=>{
-                if(errCountItem){
+            let countItems = `select count(*) as totalItemAdmin from product;`
+            db.query(countItems, (errCountItem, resCountItem) => {
+                if (errCountItem) {
                     res.status(400).send(errCountItem)
                 }
-                totalProd=resCountItem[0]
+                totalProd = resCountItem[0]
 
-                let getProd= `select * from product limit ${db.escape((currentPage - 1) * perPage)}, ${db.escape(perPage)}`
+                let getProd = `select * from product limit ${db.escape((currentPage - 1) * perPage)}, ${db.escape(perPage)}`
 
-                db.query(getProd,(errGetProd, resGetProd)=>{
-                    if(errGetProd){
+                db.query(getProd, (errGetProd, resGetProd) => {
+                    if (errGetProd) {
                         res.status(400).send(errGetProd)
                     }
                     let resultProduct = []
-                    resultProduct.push(resGetProd, {current_page: currentPage}, {per_page: perPage}, totalProd, {message: `${prodName} successfully deleted`})
+                    resultProduct.push(resGetProd, { current_page: currentPage }, { per_page: perPage }, totalProd, { message: `${prodName} successfully deleted` })
                     res.status(200).send(resultProduct)
                 })
             })
         })
     },
 
+    addStockDefault: (req, res) => {
+        let countWH = `select * from wh;`
+        const id = +req.params.id
+
+        db.query(countWH, (errCountWH, resCountWH) => {
+            if (errCountWH) {
+                console.log(errCountWH)
+                res.status(400).send(errCountWH)
+
+            }
+            // res.status(200).send(resCountWH[0])
+            for (let i = 0; i <= resCountWH.length; i++) {
+                let insertStock = `insert into stock (id_product, id_warehouse) values (${id}, ${i + 1});`
+                db.query(insertStock, (errInsertStock, resInsertStock) => {
+                    if (errInsertStock) {
+                        console.log(errInsertStock)
+                        res.status(400).send(errInsertStock)
+                    }
+                })
+            } res.status(200).send("Success add stock-default")
+        })
+    },
+
+    deleteStock: (req, res) => {
+        let delStock = `delete from stock where id_product=${db.escape(req.params.id)};`
+        db.query(delStock, (errDelStock, resDelStock) => {
+            if (errDelStock) {
+                console.log(errDelStock)
+                res.status(400).send(errDelStock)
+            }
+            res.status(200).send(resDelStock)
+        })
+    },
+
+    prodReport: (req, res) => { //this month
+        let prodRep = `select  sum(od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
+        sum(od.quantity) as QtySold
+        from orderdetail od
+        join order o on od.order_number = o.order_number
+        join product p on od.id_product = p.id_product
+        where o.status like '%done%' and o.order_date >= date_sub(curdate(), interval 30 day)
+        group by od.id_product;`
+        db.query(prodRep, (errGetProdRep, resGetProdRep) => {
+            if (errGetProdRep) {
+                console.log(errGetProdRep)
+                res.status(400).send(errGetProdRep)
+            }
+            // res.status(200).send(resGetProdRep)
+            let result = []
+            let PR = resGetProdRep
+            let resProdName = []
+            let resProdQty = []
+            let dates = "This month"
+            PR.forEach(function (item) {
+                resProdName.push(item.product_name)
+                resProdQty.push(item.QtySold)
+            })
+            result.push(PR, resProdName, resProdQty, dates)
+            res.status(200).send(result)
+        })
+    },
+
+    prodSalesReport: (req, res) => { //filter dates
+        const { startDate, endDate } = req.body
+
+        if (startDate && endDate) {
+            let prodSalesRepStartEnd = `select  sum(distinct od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
+            sum(od.quantity) as QtySold
+            from orderdetail od
+            join order o on od.order_number = o.order_number
+            join product p on od.id_product = p.id_product
+            where o.status like '%done%' and o.order_date between ${db.escape(startDate)} and ${db.escape(endDate)}
+            group by od.id_product;`
+            db.query(prodSalesRepStartEnd, (errGetProdSalesRep, resGetProdSalesRep) => {
+                if (errGetProdSalesRep) {
+                    console.log(errGetProdSalesRep)
+                    res.status(400).send(errGetProdSalesRep)
+                }
+                // res.status(200).send(resGetProdSalesRep)
+                let result = []
+                let PR = resGetProdSalesRep
+                let resProdName = []
+                let resProdQty = []
+                let modDateStart = startDate.split(/\D/g)
+                let modDateEnd = endDate.split(/\D/g)
+                let startDateChanged = [modDateStart[2], modDateStart[1], modDateStart[0]].join("-")
+                let endDateChanged = [modDateEnd[2], modDateEnd[1], modDateEnd[0]].join("-")
+                let dates = `during period ${startDateChanged} until ${endDateChanged}`
+                PR.forEach(function (item) {
+                    resProdName.push(item.product_name)
+                    resProdQty.push(item.QtySold)
+                })
+                result.push(PR,resProdName,resProdQty, dates)
+                res.status(200).send(result)
+            })
+
+        } else if (startDate && !endDate) {
+            let prodSalesRepStartOnly = `select  sum(distinct od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
+            sum(od.quantity) as QtySold
+            from orderdetail od
+            join order o on od.order_number = o.order_number
+            join product p on od.id_product = p.id_product
+            where o.status like '%done%' and o.order_date = ${db.escape(startDate)}
+            group by od.id_product;`
+            db.query(prodSalesRepStartOnly, (errGetProdSalesRepStart, resGetProdSalesStart)=>{
+                if(errGetProdSalesRepStart){
+                    console.log(errGetProdSalesRepStart)
+                    res.status(400).send(errGetProdSalesRepStart)
+                }
+                // res.status(200).send(resGetProdSalesStart)
+                let result = []
+                let PR = resGetProdSalesStart
+                let resProdName = []
+                let resProdQty = []
+                let modDateStart = startDate.split(/\D/g)
+                let startDateChanged = [modDateStart[2], modDateStart[1], modDateStart[0]].join("-")
+                let dates = `on date ${startDateChanged}`
+                PR.forEach(function (item) {
+                    resProdName.push(item.product_name)
+                    resProdQty.push(item.QtySold)
+                })
+                result.push(PR,resProdName,resProdQty, dates)
+                res.status(200).send(result)
+            })
+
+        } else if (!startDate && endDate) {
+            let prodSalesRepEndOnly = `select  sum(distinct od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
+            sum(od.quantity) as QtySold
+            from orderdetail od
+            join order o on od.order_number = o.order_number
+            join product p on od.id_product = p.id_product
+            where o.status like '%done%' and o.order_date = ${db.escape(endDate)}
+            group by od.id_product;`
+            db.query(prodSalesRepEndOnly, (errGetProdSalesRepEnd, resGetProdSalesEnd)=>{
+                if(errGetProdSalesRepEnd) {
+                    console.log(errGetProdSalesRepEnd)
+                    res.status(400).send(errGetProdSalesRepEnd)
+                }
+                // res.status(200).send(resGetProdSalesEnd)
+                let result = []
+                let PR = resGetProdSalesEnd
+                let resProdName = []
+                let resProdQty = []
+                let modDateEnd = endDate.split(/\D/g)
+                let endDateChanged = [modDateEnd[2], modDateEnd[1], modDateEnd[0]].join("-")
+                let dates = `on date ${endDateChanged}`
+                PR.forEach(function (item) {
+                    resProdName.push(item.product_name)
+                    resProdQty.push(item.QtySold)
+                })
+                result.push(PR,resProdName,resProdQty, dates)
+                res.status(200).send(result)
+            })
+
+        } else if(!startDate && !endDate) {
+            return res.status(400).send([true, "Make sure all of your input dates !"])
+        }
+    },
     // addCategories: (req, res) => {
     //     const {cate_name} =req.body
     //     let addCate = `insert into categories(category_name)
