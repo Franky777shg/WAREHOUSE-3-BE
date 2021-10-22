@@ -52,13 +52,25 @@ module.exports = {
   },
 
   deleteCart: (req, res) => {
-    const deleteCartQuery = `DELETE FROM cart WHERE id_user=${req.user.idUser} AND id_cart=${req.body.cartID} `;
-    db.query(deleteCartQuery, (error, deleteRes) => {
-      const getCartQuery = `SELECT * FROM cart c1 inner join product p1 on c1.id_product = p1.id_product WHERE id_user="${req.user.idUser}" `;
-      db.query(getCartQuery, (error, cartResult) => {
-        res.status(200).send(cartResult);
-      });
-    });
+    switch (req.params.type) {
+      case "partial":
+        const deleteCartQuery = `DELETE FROM cart WHERE id_user=${req.user.idUser} AND id_cart=${req.body.cartID} `;
+        db.query(deleteCartQuery, (error, deleteRes) => {
+          const getCartQuery = `SELECT * FROM cart c1 inner join product p1 on c1.id_product = p1.id_product WHERE id_user="${req.user.idUser}" `;
+          db.query(getCartQuery, (error, cartResult) => {
+            res.status(200).send(cartResult);
+          });
+        });
+        break;
+      case "full":
+        const deleteCartQuery2 = `DELETE FROM cart WHERE id_user=${req.user.idUser} `;
+        db.query(deleteCartQuery2, (error, deleteRes) => {
+          res.status(200).send(deleteRes);
+        });
+        break;
+      default:
+        break;
+    }
   },
 
   changeQty: (req, res) => {
@@ -73,11 +85,40 @@ module.exports = {
 
   addTransaction: (req, res) => {
     let data = req.body;
-    const addTransactionQuery = `INSERT INTO transaction(id_user, id_product, id_address, quantity, total_price, payment_status, payment_image, status) 
-    VALUES(${req.user.idUser}, ${data.id_product}, ${data.id_address}, ${data.quantity}, ${data.total_price},   'unpaid', '', 'pending' )`;
-    db.query(addTransactionQuery, (error, result) => {
-      if (error) res.status(400).send(error);
-      res.status(200).send({ message: "transaction_success" });
+
+    switch (req.params.type) {
+      case "order":
+        db.query(
+          `INSERT INTO tb_order(id_user, id_address, order_number, order_date, status, payment_status) VALUES(${req.user.idUser}, ${data.id_address}, '${data.order_number}', '', 'pending', 'unpaid' )`,
+          (error, resultTransaction) => {
+            if (error) res.status(400).send(error);
+            res.status(200).send({
+              message: "order_added",
+              data: resultTransaction,
+            });
+          }
+        );
+        break;
+      case "detail":
+        const addTransactionQuery = `INSERT INTO tb_orderdetail(order_number, id_product, quantity, total_price)
+        VALUES('${data.order_number}', ${data.id_product}, ${data.quantity}, ' ${data.total_price}'  )`;
+
+        db.query(addTransactionQuery, (error, resultTransaction) => {
+          if (error) res.status(400).send(error);
+          res
+            .status(200)
+            .send({ message: "transaction_success", data: resultTransaction });
+        });
+        break;
+      default:
+        break;
+    }
+  },
+
+  getTransaction: (req, res) => {
+    const getTransactionQuery = `SELECT * FROM tb_order o inner join tb_orderdetail od ON o.order_number = od.order_number JOIN address a ON o.id_address = a.id_address JOIN product p ON od.id_product = p.id_product;`;
+    db.query(getTransactionQuery, (error, transactionResult) => {
+      res.status(200).send(transactionResult);
     });
   },
 };
