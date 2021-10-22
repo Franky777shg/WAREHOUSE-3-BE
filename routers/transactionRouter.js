@@ -13,13 +13,19 @@ router.post(
 router.post("/getCart", verifyToken, transactionController.getCart);
 router.post("/getAddress", verifyToken, transactionController.getAddress);
 router.post("/getUserData", verifyToken, transactionController.getUserData);
-router.post("/deleteCart", verifyToken, transactionController.deleteCart);
+router.post("/deleteCart/:type", verifyToken, transactionController.deleteCart);
 router.post("/changeQty", verifyToken, transactionController.changeQty);
 
 router.post(
-  "/addTransaction",
+  "/addTransaction/:type",
   verifyToken,
   transactionController.addTransaction
+);
+
+router.post(
+  "/getTransaction",
+  verifyToken,
+  transactionController.getTransaction
 );
 
 module.exports = router;
