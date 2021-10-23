@@ -21,4 +21,8 @@ router.post('/delete-stock/:id', adminProductController.deleteStock)
 router.get('/product-report', adminProductController.prodReport)
 router.post('/product-sales-report', adminProductController.prodSalesReport)
 
+router.get('/product-revenue', adminProductController.prodRevenue)
+router.get('/product-revenue-total', adminProductController.prodRevenueTotal)
+router.post('/product-revenue-date', adminProductController.prodRevenueDates)
+
 module.exports = router
