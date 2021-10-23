@@ -6,6 +6,7 @@ const transactionController = require("./transactionController");
 
 const adminProductController = require("./__admin/adminProductController");
 const superAdminController = require("./__admin/superAdminController");
+const adminWarehouseController = require("./__admin/adminWarehouseController")
 
 module.exports = {
   userController,
@@ -14,4 +15,5 @@ module.exports = {
   adminProductController,
   transactionController,
   superAdminController,
+  adminWarehouseController
 };

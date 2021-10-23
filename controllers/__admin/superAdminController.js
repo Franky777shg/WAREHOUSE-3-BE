@@ -41,7 +41,7 @@ module.exports = {
             console.log(err)
             res.status(400).send(err)
         }
-            let getWarehouse = `SELECT warehouse_name,warehouse_address,warehouse_kecamatan,warehouse_kabupaten,warehouse_provinsi
+            let getWarehouse = `SELECT id_warehouse, warehouse_name,warehouse_address,warehouse_kecamatan,warehouse_kabupaten,warehouse_provinsi
             FROM warehouse`    
             db.query(getWarehouse, (err2, result2) => {
                 if(err) {
@@ -95,7 +95,45 @@ module.exports = {
         })
     // res.status(200).send(result)
     }) 
-  }
+  }, 
+
+  addStockDefault: (req,res) => {
+    let countWH = `select * from product;`
+    const editData = req.body
+    
+    db.query(countWH,(errCountWH, resCountWH)=>{
+        if(errCountWH){
+            console.log(errCountWH)
+            res.status(400).send(errCountWH)
+
+        }
+        resCountWH.forEach(function(item) {
+            let insertStock = `insert into stock (id_product, id_warehouse) values (${item.id_product},  '${editData.id_warehouse}');`
+            db.query(insertStock,(errInsertStock, resInsertStock)=>{
+                if(errInsertStock){
+                    console.log(errInsertStock)
+                    res.status(400).send(errInsertStock)
+                }
+            })
+        })
+        res.status(200).send("tes")
+
+        // res.status(200).send(resCountWH[0])
+        // console.log(resCountWH)
+        // for (let i = 0; i<resCountWH.length ;i++){
+        // let insertStock = `insert into stock (id_product, id_warehouse) values (${i+1},  '${editData.id_warehouse}');`
+        //     db.query(insertStock,(errInsertStock, resInsertStock)=>{
+        //         if(errInsertStock){
+        //             console.log(errInsertStock)
+        //             res.status(400).send(errInsertStock)
+        //         }
+        //     })
+        // }
+        
+        
+
+    })
+},
 
 
 };
