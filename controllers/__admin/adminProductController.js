@@ -81,7 +81,7 @@ module.exports = {
     getProdDetailStockOperational: (req, res) => {
         let getStockOp = `select p1.id_product, w1.id_warehouse, s1.stock_op, p1.product_name, w1.warehouse_name from stock s1
         inner join product p1 on p1.id_product = s1.id_product
-        inner join wh w1 on s1.id_warehouse = w1.id_warehouse
+        inner join warehouse w1 on s1.id_warehouse = w1.id_warehouse
         where p1.id_product= ${req.params.id};`
         db.query(getStockOp, (errGetStockOp, resGetStockOp) => {
             if (errGetStockOp) {
@@ -243,7 +243,7 @@ module.exports = {
         from orderdetail od
         join order o on od.order_number = o.order_number
         join product p on od.id_product = p.id_product
-        where o.status like '%done%' and o.order_date >= date_sub(curdate(), interval 30 day)
+        where o.status = 'done' and o.order_date >= date_sub(curdate(), interval 30 day)
         group by od.id_product;`
         db.query(prodRep, (errGetProdRep, resGetProdRep) => {
             if (errGetProdRep) {
@@ -274,7 +274,7 @@ module.exports = {
             from orderdetail od
             join order o on od.order_number = o.order_number
             join product p on od.id_product = p.id_product
-            where o.status like '%done%' and o.order_date between ${db.escape(startDate)} and ${db.escape(endDate)}
+            where o.status = 'done' and o.order_date between ${db.escape(startDate)} and ${db.escape(endDate)}
             group by od.id_product;`
             db.query(prodSalesRepStartEnd, (errGetProdSalesRep, resGetProdSalesRep) => {
                 if (errGetProdSalesRep) {
@@ -295,7 +295,7 @@ module.exports = {
                     resProdName.push(item.product_name)
                     resProdQty.push(item.QtySold)
                 })
-                result.push(PR,resProdName,resProdQty, dates)
+                result.push(PR, resProdName, resProdQty, dates)
                 res.status(200).send(result)
             })
 
@@ -305,10 +305,10 @@ module.exports = {
             from orderdetail od
             join order o on od.order_number = o.order_number
             join product p on od.id_product = p.id_product
-            where o.status like '%done%' and o.order_date = ${db.escape(startDate)}
+            where o.status = 'done' and o.order_date = ${db.escape(startDate)}
             group by od.id_product;`
-            db.query(prodSalesRepStartOnly, (errGetProdSalesRepStart, resGetProdSalesStart)=>{
-                if(errGetProdSalesRepStart){
+            db.query(prodSalesRepStartOnly, (errGetProdSalesRepStart, resGetProdSalesStart) => {
+                if (errGetProdSalesRepStart) {
                     console.log(errGetProdSalesRepStart)
                     res.status(400).send(errGetProdSalesRepStart)
                 }
@@ -324,7 +324,7 @@ module.exports = {
                     resProdName.push(item.product_name)
                     resProdQty.push(item.QtySold)
                 })
-                result.push(PR,resProdName,resProdQty, dates)
+                result.push(PR, resProdName, resProdQty, dates)
                 res.status(200).send(result)
             })
 
@@ -334,10 +334,10 @@ module.exports = {
             from orderdetail od
             join order o on od.order_number = o.order_number
             join product p on od.id_product = p.id_product
-            where o.status like '%done%' and o.order_date = ${db.escape(endDate)}
+            where o.status = 'done' and o.order_date = ${db.escape(endDate)}
             group by od.id_product;`
-            db.query(prodSalesRepEndOnly, (errGetProdSalesRepEnd, resGetProdSalesEnd)=>{
-                if(errGetProdSalesRepEnd) {
+            db.query(prodSalesRepEndOnly, (errGetProdSalesRepEnd, resGetProdSalesEnd) => {
+                if (errGetProdSalesRepEnd) {
                     console.log(errGetProdSalesRepEnd)
                     res.status(400).send(errGetProdSalesRepEnd)
                 }
@@ -353,14 +353,107 @@ module.exports = {
                     resProdName.push(item.product_name)
                     resProdQty.push(item.QtySold)
                 })
-                result.push(PR,resProdName,resProdQty, dates)
+                result.push(PR, resProdName, resProdQty, dates)
                 res.status(200).send(result)
             })
 
-        } else if(!startDate && !endDate) {
-            return res.status(400).send([true, "Make sure all of your input dates !"])
+        } else if (!startDate && !endDate) {
+            return res.status(400).send([true, "Input dates cannot be empty !"])
         }
     },
+
+    prodRevenue: (req, res) => { //this month
+        let prodRev = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
+        from orderdetail od
+        join order o on od.order_number = o.order_number
+        where o.status = 'done' and o.order_date >= date_sub(curdate(), interval 30 day);`
+        db.query(prodRev, (errProdRev, resProdRev) => {
+            if (errProdRev) {
+                console.log(errProdRev)
+                res.status(400).send(errProdRev)
+            }
+            // res.status(200).send(resProdRevTotal)
+            let resRev = []
+            let dates = "This month"
+            resRev.push(resProdRev, dates)
+            res.status(200).send(resRev)
+        })
+    },
+
+    prodRevenueTotal: (req, res) => {
+        let prodRevTotal = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
+        from orderdetail od
+        join order o on od.order_number = o.order_number
+        where o.status = 'done';`
+        db.query(prodRevTotal, (errProdRevTotal, resProdRevTotal) => {
+            if (errProdRevTotal) {
+                console.log(errProdRevTotal)
+                res.status(400).send(errProdRevTotal)
+            }
+            // res.status(200).send(resProdRevTotal)
+            let resRevTotal = []
+            let dates = "All time"
+            resRevTotal.push(resProdRevTotal, dates)
+            res.status(200).send(resRevTotal)
+        })
+    },
+
+    prodRevenueDates: (req, res) => {
+        const { revDateStart, revDateEnd } = req.body
+
+        if (revDateStart && revDateEnd) {
+            let prodRevStartEnd = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
+        from orderdetail od
+        join order o on od.order_number = o.order_number
+        where o.status = 'done' and o.order_date between ${db.escape(revDateStart)} and ${db.escape(revDateEnd)};`
+            db.query(prodRevStartEnd, (errProdRevStartEnd, resProdRevStartEnd) => {
+                if (errProdRevStartEnd) {
+                    console.log(errProdRevStartEnd)
+                    res.status(400).send(errProdRevStartEnd)
+                }
+                // res.status(200).send(resProdRevStartEnd)
+                let resRevDate = []
+                let dates = `from ${revDateStart} until ${revDateEnd}`
+                resRevDate.push(resProdRevStartEnd, dates)
+                res.status(200).send(resRevDate)
+            })
+
+        } else if (revDateStart && !revDateEnd) {
+            let prodRevStart = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
+            from orderdetail od
+            join order o on od.order_number = o.order_number
+            where o.status = 'done' and o.order_date = ${db.escape(revDateStart)} ;`
+            db.query(prodRevStart, (errProdRevStart, resProdRevStart) => {
+                if (errProdRevStart) {
+                    console.log(errProdRevStart)
+                    res.status(400).send(errProdRevStart)
+                }
+                let resRevDate = []
+                let dates = `on date ${revDateStart}`
+                resRevDate.push(resProdRevStart, dates)
+                res.status(200).send(resRevDate)
+            })
+
+        } else if (!revDateStart && revDateEnd) {
+            let prodRevEnd = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
+            from orderdetail od
+            join order o on od.order_number = o.order_number
+            where o.status = 'done' and o.order_date = ${db.escape(revDateEnd)};`
+            db.query(prodRevEnd, (errProdRevEnd, resProdRevEnd) => {
+                if (errProdRevEnd) {
+                    console.log(errProdRevEnd)
+                    res.status(400).send(errProdRevEnd)
+                }
+                let resRevDate = []
+                let dates = `on date ${revDateEnd}`
+                resRevDate.push(resProdRevEnd, dates)
+                res.status(200).send(resRevDate)
+            })
+
+        } else if (!revDateStart && !revDateEnd) {
+            return res.status(400).send([true, "Input dates cannot be empty !"])
+        }
+    }
     // addCategories: (req, res) => {
     //     const {cate_name} =req.body
     //     let addCate = `insert into categories(category_name)
