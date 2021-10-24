@@ -22,10 +22,15 @@ router.post(
   transactionController.addTransaction
 );
 
+router.post("/getOrder", verifyToken, transactionController.getOrder);
+
 router.post(
-  "/getTransaction",
+  "/getOrderDetail",
   verifyToken,
-  transactionController.getTransaction
+  transactionController.getOrderDetail
 );
+
+router.post("/getPaymentStatus", transactionController.getPaymentStatus);
+router.post("/uploadPayment", transactionController.uploadPayment);
 
 module.exports = router;

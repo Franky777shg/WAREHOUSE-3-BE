@@ -89,7 +89,7 @@ module.exports = {
     switch (req.params.type) {
       case "order":
         db.query(
-          `INSERT INTO tb_order(id_user, id_address, order_number, order_date, status, payment_status) VALUES(${req.user.idUser}, ${data.id_address}, '${data.order_number}', '', 'pending', 'unpaid' )`,
+          `INSERT INTO warehouse.order(id_user, id_address, order_number, order_date, status, payment_status) VALUES(${req.user.idUser}, ${data.id_address}, '${data.order_number}', '', 'pending', 'unpaid' )`,
           (error, resultTransaction) => {
             if (error) res.status(400).send(error);
             res.status(200).send({
@@ -100,8 +100,8 @@ module.exports = {
         );
         break;
       case "detail":
-        const addTransactionQuery = `INSERT INTO tb_orderdetail(order_number, id_product, quantity, total_price)
-        VALUES('${data.order_number}', ${data.id_product}, ${data.quantity}, ' ${data.total_price}'  )`;
+        const addTransactionQuery = `INSERT INTO orderdetail(order_number, id_product, quantity, total_price, shipping_fee)
+        VALUES('${data.order_number}', ${data.id_product}, ${data.quantity}, ' ${data.total_price}', '200000' )`;
 
         db.query(addTransactionQuery, (error, resultTransaction) => {
           if (error) res.status(400).send(error);
@@ -110,15 +110,68 @@ module.exports = {
             .send({ message: "transaction_success", data: resultTransaction });
         });
         break;
+      case "add_default_payment":
+        const addPaymentQuery = `INSERT INTO payment(order_number, payment_method  )
+        VALUES('${data.order_number}', 'Manual transfer - Mandiri')`;
+
+        db.query(addPaymentQuery, (error, resultTransaction) => {
+          if (error) res.status(400).send(error);
+          res.status(200).send({
+            message: "add_default_payment_success",
+            data: resultTransaction,
+          });
+        });
+        break;
       default:
         break;
     }
   },
 
-  getTransaction: (req, res) => {
-    const getTransactionQuery = `SELECT * FROM tb_order o inner join tb_orderdetail od ON o.order_number = od.order_number JOIN address a ON o.id_address = a.id_address JOIN product p ON od.id_product = p.id_product;`;
+  getOrder: (req, res) => {
+    db.query(
+      `SELECT * FROM warehouse.order o JOIN address a ON o.id_address = a.id_address WHERE o.id_user=${req.user.idUser}`,
+      (error, transactionResult) => {
+        res.status(200).send(transactionResult);
+      }
+    );
+  },
+
+  getOrderDetail: (req, res) => {
+    const getTransactionQuery = `SELECT * FROM warehouse.order o inner join orderdetail od ON o.order_number = od.order_number JOIN address a ON o.id_address = a.id_address JOIN product p ON od.id_product = p.id_product WHERE od.order_number=${db.escape(
+      req.body.order_number
+    )}`;
     db.query(getTransactionQuery, (error, transactionResult) => {
       res.status(200).send(transactionResult);
     });
+  },
+
+  uploadPayment: (req, res) => {
+    const data = req.body;
+    var today = new Date();
+    var date =
+      today.getFullYear() +
+      "-" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
+    var time =
+      today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date + " " + time;
+
+    db.query(
+      `UPDATE payment set payment_image='${data.payment_image}', date='${dateTime}', nama_pemilik_rekening='${data.nama}', nominal='${data.nominal}', status='sent' WHERE order_number='${data.order_number}'`,
+      (error, transactionResult) => {
+        res.status(200).send({ message: "update_success" });
+      }
+    );
+  },
+
+  getPaymentStatus: (req, res) => {
+    db.query(
+      `SELECT * FROM payment WHERE order_number='${req.body.order_number}'`,
+      (error, transactionResult) => {
+        res.status(200).send(transactionResult);
+      }
+    );
   },
 };
