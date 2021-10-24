@@ -15,5 +15,9 @@ router.post('/get-wareshousestock', adminWarehouseController.fetchWarehouseStock
 router.post('/req-wareshousestock', adminWarehouseController.sendRequestStock)
 router.post('/get-stockrequestlist', adminWarehouseController.fecthStockRequest)
 router.post('/get-requestedstock', adminWarehouseController.fecthRequestedStock)
+router.post("/update-requestedstock/:id", adminWarehouseController.editRequestedStock);
+router.post("/update-requestedlist/:id", adminWarehouseController.editRequestedList);
+router.post("/update-reducestock", adminWarehouseController.requestedStockSend);
+router.post("/update-increasestock", adminWarehouseController.increaseStockSend);
 
 module.exports = router;

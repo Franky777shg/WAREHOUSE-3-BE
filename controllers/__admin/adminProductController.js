@@ -241,7 +241,7 @@ module.exports = {
         let prodRep = `select  sum(od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
         sum(od.quantity) as QtySold
         from orderdetail od
-        join order o on od.order_number = o.order_number
+        join warehouse.order o on od.order_number = o.order_number
         join product p on od.id_product = p.id_product
         where o.status = 'done' and o.order_date >= date_sub(curdate(), interval 30 day)
         group by od.id_product;`
@@ -272,7 +272,7 @@ module.exports = {
             let prodSalesRepStartEnd = `select  sum(distinct od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
             sum(od.quantity) as QtySold
             from orderdetail od
-            join order o on od.order_number = o.order_number
+            join warehouse.order o on od.order_number = o.order_number
             join product p on od.id_product = p.id_product
             where o.status = 'done' and o.order_date between ${db.escape(startDate)} and ${db.escape(endDate)}
             group by od.id_product;`
@@ -303,7 +303,7 @@ module.exports = {
             let prodSalesRepStartOnly = `select  sum(distinct od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
             sum(od.quantity) as QtySold
             from orderdetail od
-            join order o on od.order_number = o.order_number
+            join warehouse.order o on od.order_number = o.order_number
             join product p on od.id_product = p.id_product
             where o.status = 'done' and o.order_date = ${db.escape(startDate)}
             group by od.id_product;`
@@ -332,7 +332,7 @@ module.exports = {
             let prodSalesRepEndOnly = `select  sum(distinct od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
             sum(od.quantity) as QtySold
             from orderdetail od
-            join order o on od.order_number = o.order_number
+            join warehouse.order o on od.order_number = o.order_number
             join product p on od.id_product = p.id_product
             where o.status = 'done' and o.order_date = ${db.escape(endDate)}
             group by od.id_product;`
@@ -365,7 +365,7 @@ module.exports = {
     prodRevenue: (req, res) => { //this month
         let prodRev = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
         from orderdetail od
-        join order o on od.order_number = o.order_number
+        join warehouse.order o on od.order_number = o.order_number
         where o.status = 'done' and o.order_date >= date_sub(curdate(), interval 30 day);`
         db.query(prodRev, (errProdRev, resProdRev) => {
             if (errProdRev) {
@@ -383,7 +383,7 @@ module.exports = {
     prodRevenueTotal: (req, res) => {
         let prodRevTotal = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
         from orderdetail od
-        join order o on od.order_number = o.order_number
+        join warehouse.order o on od.order_number = o.order_number
         where o.status = 'done';`
         db.query(prodRevTotal, (errProdRevTotal, resProdRevTotal) => {
             if (errProdRevTotal) {
@@ -404,7 +404,7 @@ module.exports = {
         if (revDateStart && revDateEnd) {
             let prodRevStartEnd = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
         from orderdetail od
-        join order o on od.order_number = o.order_number
+        join warehouse.order o on od.order_number = o.order_number
         where o.status = 'done' and o.order_date between ${db.escape(revDateStart)} and ${db.escape(revDateEnd)};`
             db.query(prodRevStartEnd, (errProdRevStartEnd, resProdRevStartEnd) => {
                 if (errProdRevStartEnd) {
@@ -421,7 +421,7 @@ module.exports = {
         } else if (revDateStart && !revDateEnd) {
             let prodRevStart = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
             from orderdetail od
-            join order o on od.order_number = o.order_number
+            join warehouse.order o on od.order_number = o.order_number
             where o.status = 'done' and o.order_date = ${db.escape(revDateStart)} ;`
             db.query(prodRevStart, (errProdRevStart, resProdRevStart) => {
                 if (errProdRevStart) {
@@ -437,7 +437,7 @@ module.exports = {
         } else if (!revDateStart && revDateEnd) {
             let prodRevEnd = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
             from orderdetail od
-            join order o on od.order_number = o.order_number
+            join warehouse.order o on od.order_number = o.order_number
             where o.status = 'done' and o.order_date = ${db.escape(revDateEnd)};`
             db.query(prodRevEnd, (errProdRevEnd, resProdRevEnd) => {
                 if (errProdRevEnd) {
