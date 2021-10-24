@@ -45,7 +45,7 @@ module.exports = {
   },
 
   getAddress: (req, res) => {
-    const getAddress = `SELECT * FROM address WHERE id_user="${req.user.idUser}" `;
+    const getAddress = `SELECT * FROM address WHERE id_user=${req.user.idUser} `;
     db.query(getAddress, (error, addressResult) => {
       res.status(200).send(addressResult);
     });
@@ -159,9 +159,11 @@ module.exports = {
     var dateTime = date + " " + time;
 
     db.query(
-      `UPDATE payment set payment_image='${data.payment_image}', date='${dateTime}', nama_pemilik_rekening='${data.nama}', nominal='${data.nominal}', status='sent' WHERE order_number='${data.order_number}'`,
+      `UPDATE payment set payment_image='${data.payment_image}', date='${dateTime}', nama_pemilik_rekening='${data.nama}', nominal='${data.nominal}', status='processed' WHERE order_number='${data.order_number}'`,
       (error, transactionResult) => {
-        res.status(200).send({ message: "update_success" });
+        res
+          .status(200)
+          .send({ message: "update_success", data: transactionResult });
       }
     );
   },

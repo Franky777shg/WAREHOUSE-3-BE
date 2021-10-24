@@ -117,24 +117,26 @@ module.exports = {
   },
 
   changePass: (req, res) => {
-    let idUser = req.user.idUser
-    let password  = req.body
-    
+    let idUser = req.user.idUser;
+    let password = req.body;
+
     // buat input password jadi hash
     password = crypto
-    .createHmac("sha1", process.env.SECRET_KEY)
-    .update(req.body.password)
-    .digest("hex");
+      .createHmac("sha1", process.env.SECRET_KEY)
+      .update(req.body.password)
+      .digest("hex");
 
-    const updatePass = `update user set password =${db.escape(password)} where id_user=${idUser};`
+    const updatePass = `update user set password =${db.escape(
+      password
+    )} where id_user=${idUser};`;
 
     db.query(updatePass, (errChangePass, resultChangePass) => {
       if (errChangePass) {
         console.log(errChangePass);
         res.status(400).send(errChangePass);
       }
-        res.status(200).send(resultChangePass)
-    })
+      res.status(200).send(resultChangePass);
+    });
   },
 
   getUserAddress: (req, res) => {
@@ -231,9 +233,9 @@ module.exports = {
   addUserAddress: (req, res) => {
     const editData = req.body;
     let idUser = req.user.idUser;
-    const addUserAddress = `INSERT INTO address(address, kecamatan, kabupaten, status_aktif, id_user)
+    const addUserAddress = `INSERT INTO address(id_user, address, kecamatan, kabupaten, provinsi, address_type, address_phone, package_recipient)
     VALUES 
-    ('${editData.address}', '${editData.kecamatan}', '${editData.kabupaten}','${editData.status_aktif}', '${idUser}')`;
+    (${idUser}, '${editData.address}', '${editData.kecamatan}', '${editData.kabupaten}','${editData.provinsi}','${editData.tipe_alamat}', '${editData.hp}','${editData.penerima}' )`;
     db.query(addUserAddress, req.body, (err, result) => {
       if (err) {
         console.log(err);
