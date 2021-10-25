@@ -41,7 +41,7 @@ module.exports = {
   },
 
   getlistTransaction: (req, res) => {
-    const getTransactionList = `SELECT pay.order_number, pay.date, pay.payment_image, pay.nama_pemilik_rekening, pay.nominal, o.order_date, u.username, o.payment_status
+    const getTransactionList = `SELECT pay.order_number, pay.date, pay.payment_image, pay.nama_pemilik_rekening, pay.nominal, o.order_date, u.username, o.status
     FROM warehouse.payment pay
       INNER JOIN warehouse.order o
     ON pay.order_number = o.order_number
@@ -59,7 +59,7 @@ module.exports = {
   getlistTransactionDetail: (req, res) => {
     const {order_number} = req.body
     
-    const getTransactionList = `SELECT od.id_orderdetail, od.order_number, o.payment_status, 
+    const getTransactionList = `SELECT od.id_orderdetail, od.order_number, o.status, 
     o.order_date, od.id_product, od.quantity, p.date, pr.product_name, pr.product_price
       FROM warehouse.payment p
     INNER JOIN warehouse.order o
@@ -79,10 +79,10 @@ module.exports = {
   },
 
   updateStatusPembayaran: (req,res) =>{
-    const {ordernumber, paymentstatus} = req.body;
+    const {ordernumber, status} = req.body;
 
     const updatestatus = `UPDATE warehouse.order SET 
-    payment_status = '${paymentstatus}'
+    status = '${status}'
     WHERE order_number = '${ordernumber}';
     `
     db.query(updatestatus, (err, result) => {
@@ -90,7 +90,8 @@ module.exports = {
         console.log(err);
         res.status(400).send(err);
       }
-      const getTransactionList = `SELECT pay.order_number, pay.date, pay.payment_image, pay.nama_pemilik_rekening, pay.nominal, o.order_date, u.username, o.payment_status
+      const getTransactionList = `SELECT pay.order_number, pay.date, pay.payment_image, 
+      pay.nama_pemilik_rekening, pay.nominal, o.order_date, u.username, o.status
       FROM warehouse.payment pay
         INNER JOIN warehouse.order o
       ON pay.order_number = o.order_number
@@ -109,7 +110,7 @@ module.exports = {
 
   filterTransaction:  (req, res) => {
     const {filter} = req.body;
-    const filterquerry = ` SELECT pay.order_number, pay.date, pay.payment_image, pay.nama_pemilik_rekening, pay.nominal, o.order_date, u.username, o.payment_status
+    const filterquerry = ` SELECT pay.order_number, pay.date, pay.payment_image, pay.nama_pemilik_rekening, pay.nominal, o.order_date, u.username, o.status
     FROM warehouse.payment pay
       INNER JOIN warehouse.order o
     ON pay.order_number = o.order_number
