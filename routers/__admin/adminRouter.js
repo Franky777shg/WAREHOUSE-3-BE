@@ -9,6 +9,9 @@ router.post("/add-warehousedata", superAdminController.addWarehouse);
 router.get("/get-admindata", superAdminController.getDataAdmin);
 router.put("/update-warehousedata/:id", superAdminController.updateWarehouse);
 router.get("/get-transactionlist",adminController.getlistTransaction)
+router.post("/get-transactionlistdetail",adminController.getlistTransactionDetail)
+router.post("/get-updatePayment",adminController.updateStatusPembayaran)
+
 router.post("/filter-transactionlist",adminController.filterTransaction)
 router.post("/add-stock-default",superAdminController.addStockDefault)
 router.post('/get-wareshousestock', adminWarehouseController.fetchWarehouseStock)

@@ -8,7 +8,7 @@ module.exports = {
     fetchWarehouseStock : (req,res) => {
         const editData = req.body
 
-        let fecthwarehousestock = `select p.id_product, p.product_name, s.stock_op, w.warehouse_name,  w.id_warehouse from stock s 
+        let fecthwarehousestock = `select p.id_product, p.product_name, s.stock_op, s.stock_booked, w.warehouse_name,  w.id_warehouse from stock s 
         inner join warehouse w 
         on w.id_warehouse = s.id_warehouse
         inner join product p
@@ -155,7 +155,7 @@ module.exports = {
     increaseStockSend : (req,res) => {
         const {quantity,id_warehouse,id_product} = req.body
 
-        let stockReqdata = `UPDATE stock SET stock_op = (  ${quantity} + stock_op )
+        let stockReqdata = `UPDATE stock SET stock_op = ( stock_op + ${quantity} )
         where  id_product = '${id_product}' AND id_warehouse = '${id_warehouse}' ;`
         db.query(stockReqdata, (err, result) => {
             if(err) {
