@@ -285,13 +285,8 @@ module.exports = {
 
   uploadPhoto: (req, res) => {
     let idUser = req.user.idUser;
-    console.log("req.file", req.file);
 
-    if (!req.file) {
-      res.status(400).send("NO FILE");
-    }
-
-    const updatePict = `UPDATE user SET profile_picture = 'imagesProfile/${req.file.filename}'
+    const updatePict = `UPDATE USER SET profile_picture='${req.body.profile_image}'
                         WHERE id_user = ${idUser}`;
     db.query(updatePict, (err, result) => {
       if (err) {
@@ -299,20 +294,18 @@ module.exports = {
         res.status(400).send(err);
       }
 
-      res.status(200).send(result);
+      res.status(200).send({ message: "update_success", data: result });
     });
   },
 
   deleteUserPhoto: (req, res) => {
-    // const editData = req.body
     let idUser = req.user.idUser;
-    const deleteUserAddress = `UPDATE user SET profile_picture = '' WHERE id_user = ${idUser}`;
+    const deleteUserAddress = `UPDATE user SET profile_picture='${req.body.profile_image}' WHERE id_user = ${idUser}`;
     db.query(deleteUserAddress, req.body, (err, result) => {
       if (err) {
         console.log(err);
         res.status(400).send(err);
       }
-      // let idUser = req.user.idUser;
       const getuserpic = `SELECT * FROM user WHERE id_user  = ${idUser} `;
       db.query(getuserpic, (err2, result2) => {
         if (err2) {
