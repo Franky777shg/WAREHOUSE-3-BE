@@ -109,14 +109,14 @@ module.exports = {
   },
 
   filterTransaction:  (req, res) => {
-    const {filter} = req.body;
+    const {number} = req.body;
     const filterquerry = ` SELECT pay.order_number, pay.date, pay.payment_image, pay.nama_pemilik_rekening, pay.nominal, o.order_date, u.username, o.status
     FROM warehouse.payment pay
       INNER JOIN warehouse.order o
     ON pay.order_number = o.order_number
       INNER JOIN warehouse.user u
     ON u.id_user = o.id_user
-    WHERE pay.order_number LIKE '%${filter}%' OR pay.nama_pemilik LIKE '%${filter} ;`
+    WHERE pay.order_number LIKE '%${number}%'  ;`
     // OR address LIKE '%${editData}%' OR kecamatan LIKE '%${editData}%' 
     // OR kabupaten LIKE '%${editData}%'
     // OR total_price LIKE '%${editData}%' OR quantity LIKE '%${editData}%'  OR product_name LIKE '%${editData}%'
