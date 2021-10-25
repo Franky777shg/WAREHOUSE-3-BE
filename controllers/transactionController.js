@@ -89,7 +89,7 @@ module.exports = {
     switch (req.params.type) {
       case "order":
         db.query(
-          `INSERT INTO warehouse.order(id_user, id_address, order_number, order_date, status, payment_status) VALUES(${req.user.idUser}, ${data.id_address}, '${data.order_number}', '', 'pending', 'unpaid' )`,
+          `INSERT INTO warehouse.order(id_user, id_address, order_number, order_date, status, payment_status, complete) VALUES(${req.user.idUser}, ${data.id_address}, '${data.order_number}', '${data.datetime}', 'pending', 'unpaid', 'false' )`,
           (error, resultTransaction) => {
             if (error) res.status(400).send(error);
             res.status(200).send({
@@ -111,15 +111,22 @@ module.exports = {
         });
         break;
       case "add_default_payment":
-        const addPaymentQuery = `INSERT INTO payment(order_number, payment_method  )
-        VALUES('${data.order_number}', 'Manual transfer - Mandiri')`;
+        const addPaymentQuery = `INSERT INTO payment(order_number, payment_method )
+        VALUES('${data.order_number}', 'Manual Transfer - ${data.bank}')`;
 
         db.query(addPaymentQuery, (error, resultTransaction) => {
           if (error) res.status(400).send(error);
-          res.status(200).send({
-            message: "add_default_payment_success",
-            data: resultTransaction,
-          });
+          if (resultTransaction) {
+            db.query(
+              `UPDATE stock set stock_booked=${data.quantity} WHERE id_product=${data.id_product} AND id_warehouse=1`,
+              (error2, result2) => {
+                res.status(200).send({
+                  message: "add_default_payment_success",
+                  data: resultTransaction,
+                });
+              }
+            );
+          }
         });
         break;
       default:
@@ -129,7 +136,7 @@ module.exports = {
 
   getOrder: (req, res) => {
     db.query(
-      `SELECT * FROM warehouse.order o JOIN address a ON o.id_address = a.id_address WHERE o.id_user=${req.user.idUser}`,
+      `SELECT * FROM warehouse.order o JOIN address a ON o.id_address = a.id_address WHERE o.id_user=${req.user.idUser} AND o.complete='false'`,
       (error, transactionResult) => {
         res.status(200).send(transactionResult);
       }
@@ -171,6 +178,31 @@ module.exports = {
   getPaymentStatus: (req, res) => {
     db.query(
       `SELECT * FROM payment WHERE order_number='${req.body.order_number}'`,
+      (error, transactionResult) => {
+        res.status(200).send(transactionResult);
+      }
+    );
+  },
+
+  getOrderStatus: (req, res) => {
+    db.query(
+      `SELECT * FROM warehouse.order WHERE order_number='${req.body.order_number}'`,
+      (error, transactionResult) => {
+        res.status(200).send(transactionResult);
+      }
+    );
+  },
+  orderArrived: (req, res) => {
+    db.query(
+      `UPDATE warehouse.order set complete='true' WHERE order_number='${req.body.order_number}'`,
+      (error, transactionResult) => {
+        res.status(200).send({ message: "update_success" });
+      }
+    );
+  },
+  getHistory: (req, res) => {
+    db.query(
+      `SELECT * FROM warehouse.order o JOIN orderdetail od ON o.order_number=od.order_number JOIN product p ON od.id_product=p.id_product WHERE o.id_user=${req.user.idUser} AND o.complete='true';`,
       (error, transactionResult) => {
         res.status(200).send(transactionResult);
       }
