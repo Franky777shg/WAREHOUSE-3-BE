@@ -352,6 +352,7 @@ module.exports = {
     }
   },
 
+ 
   getProductDetail: (req, res) => {
     let prodDetail = `select * from product p1
         inner join categories c1 on p1.id_categories = c1.id_categories
@@ -376,3 +377,4 @@ module.exports = {
     });
   },
 };
+ 

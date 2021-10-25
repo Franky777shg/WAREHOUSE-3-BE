@@ -8,7 +8,7 @@ module.exports = {
     fetchWarehouseStock : (req,res) => {
         const editData = req.body
 
-        let fecthwarehousestock = `select p.id_product, p.product_name, s.stock_op, w.warehouse_name,  w.id_warehouse from stock s 
+        let fecthwarehousestock = `select p.id_product, p.product_name, s.stock_op, s.stock_booked, w.warehouse_name,  w.id_warehouse from stock s 
         inner join warehouse w 
         on w.id_warehouse = s.id_warehouse
         inner join product p
@@ -44,7 +44,7 @@ module.exports = {
     fecthStockRequest : (req,res) => {
         const editData = req.body
 
-        let fecthStockRequestData = `SELECT sr.id_product, sr.id_warehouse_origin, sr.warehouse_name_origin,
+        let fecthStockRequestData = `SELECT sr.id_stock, sr.id_product, sr.id_warehouse_origin, sr.warehouse_name_origin,
         sr.id_warehouse_target, sr.quantity, sr.status, p.product_name
         FROM stock_reservation sr 
         INNER JOIN product p
@@ -63,7 +63,7 @@ module.exports = {
     fecthRequestedStock : (req,res) => {
         const editData = req.body
 
-        let fecthRequestedStockData = `SELECT sr.id_product, sr.id_warehouse_origin, sr.warehouse_name_origin, 
+        let fecthRequestedStockData = `SELECT sr.id_stock, sr.id_product, sr.id_warehouse_origin, sr.warehouse_name_origin, 
         sr.id_warehouse_target, sr.quantity, sr.status, p.product_name
         FROM stock_reservation sr 
         INNER JOIN product p
@@ -78,5 +78,93 @@ module.exports = {
         })  
 
     },
+
+    editRequestedStock : (req,res) => {
+        const {status,id_warehouse_target} = req.body
+        // let id_stock_rev = req.params.id;
+
+        let editRequestedStockData = `UPDATE stock_reservation SET
+        status = '${status}'
+        WHERE id_stock = ${req.params.id}`
+        db.query(editRequestedStockData, (err, result) => {
+            if(err) {
+                console.log(err)
+                res.status(400).send(err)
+            }
+                let fecthRequestedStockData = `SELECT sr.id_stock, sr.id_product, sr.id_warehouse_origin, sr.warehouse_name_origin, 
+                sr.id_warehouse_target, sr.quantity, sr.status, p.product_name
+                FROM stock_reservation sr 
+                INNER JOIN product p
+                on sr.id_product = p.id_product
+                WHERE id_warehouse_target = '${id_warehouse_target}' ;`
+                db.query(fecthRequestedStockData, (err2, result2) => {
+                    if(err) {
+                        console.log(err2)
+                        res.status(400).send(err2)
+                    }
+                    res.status(200).send(result2)
+                })  
+            // res.status(200).send(result)
+        }) 
+    },
+
+    editRequestedList : (req,res) => {
+        const {status,id_warehouse_target} = req.body
+        // let id_stock_rev = req.params.id;
+
+        let editRequestedStockData = `UPDATE stock_reservation SET
+        status = '${status}'
+        WHERE id_stock = ${req.params.id}`
+        db.query(editRequestedStockData, (err, result) => {
+            if(err) {
+                console.log(err)
+                res.status(400).send(err)
+            }
+                let fecthRequestedStockData = `SELECT sr.id_stock, sr.id_product, sr.id_warehouse_origin, sr.warehouse_name_origin, 
+                sr.id_warehouse_target, sr.quantity, sr.status, p.product_name
+                FROM stock_reservation sr 
+                INNER JOIN product p
+                on sr.id_product = p.id_product
+                WHERE id_warehouse_target = '${id_warehouse_target}' ;`
+                db.query(fecthRequestedStockData, (err2, result2) => {
+                    if(err) {
+                        console.log(err2)
+                        res.status(400).send(err2)
+                    }
+                    res.status(200).send(result2)
+                })  
+            // res.status(200).send(result)
+        }) 
+    },
+
+    requestedStockSend : (req,res) => {
+        const {quantity,id_warehouse,id_product} = req.body
+
+        let stockReqdata = `UPDATE stock SET stock_op = ( stock_op - ${quantity})
+        where  id_product = '${id_product}' AND id_warehouse = '${id_warehouse}' ;`
+        db.query(stockReqdata, (err, result) => {
+            if(err) {
+                console.log(err)
+                res.status(400).send(err)
+            }
+            res.status(200).send(result)
+        })  
+
+    },
+
+    increaseStockSend : (req,res) => {
+        const {quantity,id_warehouse,id_product} = req.body
+
+        let stockReqdata = `UPDATE stock SET stock_op = ( stock_op + ${quantity} )
+        where  id_product = '${id_product}' AND id_warehouse = '${id_warehouse}' ;`
+        db.query(stockReqdata, (err, result) => {
+            if(err) {
+                console.log(err)
+                res.status(400).send(err)
+            }
+            res.status(200).send(result)
+        })  
+
+    }
 }
 

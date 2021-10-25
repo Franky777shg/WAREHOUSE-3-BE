@@ -204,7 +204,7 @@ module.exports = {
     },
 
     addStockDefault: (req, res) => {
-        let countWH = `select * from wh;`
+        let countWH = `select * from warehouse;`
         const id = +req.params.id
 
         db.query(countWH, (errCountWH, resCountWH) => {
@@ -213,16 +213,26 @@ module.exports = {
                 res.status(400).send(errCountWH)
 
             }
-            // res.status(200).send(resCountWH[0])
-            for (let i = 0; i <= resCountWH.length; i++) {
-                let insertStock = `insert into stock (id_product, id_warehouse) values (${id}, ${i + 1});`
+            resCountWH.forEach(function(item) {
+                let insertStock = `insert into stock (id_product, id_warehouse) values (${id}, ${item.id_warehouse});`
                 db.query(insertStock, (errInsertStock, resInsertStock) => {
                     if (errInsertStock) {
                         console.log(errInsertStock)
                         res.status(400).send(errInsertStock)
                     }
                 })
-            } res.status(200).send("Success add stock-default")
+            }) 
+            res.status(200).send(`Success add stock-default for new product id = ${id}`)
+            // res.status(200).send(resCountWH[0])
+            // for (let i = 0; i <= resCountWH.length; i++) {
+                // let insertStock = `insert into stock (id_product, id_warehouse) values (${id}, ${i + 1});`
+                // db.query(insertStock, (errInsertStock, resInsertStock) => {
+                //     if (errInsertStock) {
+                //         console.log(errInsertStock)
+                //         res.status(400).send(errInsertStock)
+                //     }
+                // })
+            // } res.status(200).send("Success add stock-default")
         })
     },
 
@@ -241,7 +251,7 @@ module.exports = {
         let prodRep = `select  sum(od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
         sum(od.quantity) as QtySold
         from orderdetail od
-        join order o on od.order_number = o.order_number
+        join warehouse.order o on od.order_number = o.order_number
         join product p on od.id_product = p.id_product
         where o.status = 'done' and o.order_date >= date_sub(curdate(), interval 30 day)
         group by od.id_product;`
@@ -272,7 +282,7 @@ module.exports = {
             let prodSalesRepStartEnd = `select  sum(distinct od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
             sum(od.quantity) as QtySold
             from orderdetail od
-            join order o on od.order_number = o.order_number
+            join warehouse.order o on od.order_number = o.order_number
             join product p on od.id_product = p.id_product
             where o.status = 'done' and o.order_date between ${db.escape(startDate)} and ${db.escape(endDate)}
             group by od.id_product;`
@@ -290,7 +300,7 @@ module.exports = {
                 let modDateEnd = endDate.split(/\D/g)
                 let startDateChanged = [modDateStart[2], modDateStart[1], modDateStart[0]].join("-")
                 let endDateChanged = [modDateEnd[2], modDateEnd[1], modDateEnd[0]].join("-")
-                let dates = `during period ${startDateChanged} until ${endDateChanged}`
+                let dates = `During period ${startDateChanged} until ${endDateChanged}`
                 PR.forEach(function (item) {
                     resProdName.push(item.product_name)
                     resProdQty.push(item.QtySold)
@@ -303,7 +313,7 @@ module.exports = {
             let prodSalesRepStartOnly = `select  sum(distinct od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
             sum(od.quantity) as QtySold
             from orderdetail od
-            join order o on od.order_number = o.order_number
+            join warehouse.order o on od.order_number = o.order_number
             join product p on od.id_product = p.id_product
             where o.status = 'done' and o.order_date = ${db.escape(startDate)}
             group by od.id_product;`
@@ -319,7 +329,7 @@ module.exports = {
                 let resProdQty = []
                 let modDateStart = startDate.split(/\D/g)
                 let startDateChanged = [modDateStart[2], modDateStart[1], modDateStart[0]].join("-")
-                let dates = `on date ${startDateChanged}`
+                let dates = `On date ${startDateChanged}`
                 PR.forEach(function (item) {
                     resProdName.push(item.product_name)
                     resProdQty.push(item.QtySold)
@@ -332,7 +342,7 @@ module.exports = {
             let prodSalesRepEndOnly = `select  sum(distinct od.total_price) as TotalShop, od.id_product, p.product_name, p.product_price,
             sum(od.quantity) as QtySold
             from orderdetail od
-            join order o on od.order_number = o.order_number
+            join warehouse.order o on od.order_number = o.order_number
             join product p on od.id_product = p.id_product
             where o.status = 'done' and o.order_date = ${db.escape(endDate)}
             group by od.id_product;`
@@ -348,7 +358,7 @@ module.exports = {
                 let resProdQty = []
                 let modDateEnd = endDate.split(/\D/g)
                 let endDateChanged = [modDateEnd[2], modDateEnd[1], modDateEnd[0]].join("-")
-                let dates = `on date ${endDateChanged}`
+                let dates = `On date ${endDateChanged}`
                 PR.forEach(function (item) {
                     resProdName.push(item.product_name)
                     resProdQty.push(item.QtySold)
@@ -365,7 +375,7 @@ module.exports = {
     prodRevenue: (req, res) => { //this month
         let prodRev = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
         from orderdetail od
-        join order o on od.order_number = o.order_number
+        join warehouse.order o on od.order_number = o.order_number
         where o.status = 'done' and o.order_date >= date_sub(curdate(), interval 30 day);`
         db.query(prodRev, (errProdRev, resProdRev) => {
             if (errProdRev) {
@@ -383,7 +393,7 @@ module.exports = {
     prodRevenueTotal: (req, res) => {
         let prodRevTotal = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
         from orderdetail od
-        join order o on od.order_number = o.order_number
+        join warehouse.order o on od.order_number = o.order_number
         where o.status = 'done';`
         db.query(prodRevTotal, (errProdRevTotal, resProdRevTotal) => {
             if (errProdRevTotal) {
@@ -404,7 +414,7 @@ module.exports = {
         if (revDateStart && revDateEnd) {
             let prodRevStartEnd = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
         from orderdetail od
-        join order o on od.order_number = o.order_number
+        join warehouse.order o on od.order_number = o.order_number
         where o.status = 'done' and o.order_date between ${db.escape(revDateStart)} and ${db.escape(revDateEnd)};`
             db.query(prodRevStartEnd, (errProdRevStartEnd, resProdRevStartEnd) => {
                 if (errProdRevStartEnd) {
@@ -421,7 +431,7 @@ module.exports = {
         } else if (revDateStart && !revDateEnd) {
             let prodRevStart = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
             from orderdetail od
-            join order o on od.order_number = o.order_number
+            join warehouse.order o on od.order_number = o.order_number
             where o.status = 'done' and o.order_date = ${db.escape(revDateStart)} ;`
             db.query(prodRevStart, (errProdRevStart, resProdRevStart) => {
                 if (errProdRevStart) {
@@ -429,7 +439,7 @@ module.exports = {
                     res.status(400).send(errProdRevStart)
                 }
                 let resRevDate = []
-                let dates = `on date ${revDateStart}`
+                let dates = `On date ${revDateStart}`
                 resRevDate.push(resProdRevStart, dates)
                 res.status(200).send(resRevDate)
             })
@@ -437,7 +447,7 @@ module.exports = {
         } else if (!revDateStart && revDateEnd) {
             let prodRevEnd = `select sum(od.total_price) as GrossRevenue, sum(od. quantity) as TotalQtySold
             from orderdetail od
-            join order o on od.order_number = o.order_number
+            join warehouse.order o on od.order_number = o.order_number
             where o.status = 'done' and o.order_date = ${db.escape(revDateEnd)};`
             db.query(prodRevEnd, (errProdRevEnd, resProdRevEnd) => {
                 if (errProdRevEnd) {
@@ -445,13 +455,298 @@ module.exports = {
                     res.status(400).send(errProdRevEnd)
                 }
                 let resRevDate = []
-                let dates = `on date ${revDateEnd}`
+                let dates = `On date ${revDateEnd}`
                 resRevDate.push(resProdRevEnd, dates)
                 res.status(200).send(resRevDate)
             })
 
         } else if (!revDateStart && !revDateEnd) {
             return res.status(400).send([true, "Input dates cannot be empty !"])
+        }
+    },
+
+    mostBuyProduct: (req, res) =>{
+        let mostBuy = `select od.id_product, p.product_name, c.category_name, p.productimg, p.product_price,
+        sum(od.quantity) as TotalQtySold
+        from orderdetail od
+        join warehouse.order o on od.order_number = o.order_number
+        join product p on p.id_product = od.id_product
+        join categories c on c.id_categories = p.id_categories
+        where o.status ='done'
+        group by od.id_product
+        order by TotalQtySold desc limit 3;`
+        db.query(mostBuy,(errMostBuy,resMostBuy)=>{
+            if(errMostBuy){
+                console.log(errMostBuy)
+                res.status(400).send(errMostBuy)
+            }
+            res.status(200).send(resMostBuy)
+        })
+    },
+
+    filteringProductAdmin : (req, res)=>{
+        const { name, category } = req.body
+        const currentPage = parseInt(req.query.page) || 1 //default query page
+        const perPage = parseInt(req.query.perPage) || 8 //default query per-page
+
+        //Jika filter nama & kategori
+        if (category && name) {
+
+            let totalNameCate
+            console.log("FilterNamaAndKategori")
+
+            let countNameCate = `select count(*) as totalItemAdmin 
+            from product p1 inner join categories c2 
+            on p1.id_categories = c2.id_categories 
+            where product_name like '%${name}%' and category_name like '%${category}%';`
+            // console.log("countNameCate",countNameCate)
+
+            db.query(countNameCate, (errCountNameCate, resCountNameCate) => {
+                if (errCountNameCate) {
+                    res.status(400).send(errCountNameCate)
+                }
+                totalNameCate = resCountNameCate[0]
+
+                let getProdCateName = `select * from product p1 inner join categories c2 
+                on p1.id_categories = c2.id_categories 
+                where product_name like '%${name}%' and category_name like '%${category}%' 
+                limit ${db.escape((currentPage - 1) * perPage)}, ${db.escape(perPage)};`
+
+                db.query(getProdCateName, (errGetProdCateName, resGetProdNameCate) => {
+                    if (errGetProdCateName) {
+                        res.status(400).send(errGetProdCateName)
+                    }
+                    let resProdNameCate = []
+                    resProdNameCate.push(resGetProdNameCate, { current_page: currentPage }, { per_page: perPage }, totalNameCate)
+                    res.status(200).send(resProdNameCate)
+                })
+            })
+
+        } else if (!name && !category) { // filter tanpa inputan
+            let totalCommon
+            console.log("filterCommon")
+
+            let countCommon = `select count(*) as totalItemAdmin 
+            from product p1 inner join categories c2 
+            on p1.id_categories = c2.id_categories ;`
+
+            db.query(countCommon, (errCountCommon, resCountCommon) => {
+                if (errCountCommon) {
+                    res.status(400).send(errCountCommon)
+                }
+                totalCommon = resCountCommon[0]
+
+                let getProdCommon = `select * from product p1 inner join categories c2 
+                on p1.id_categories = c2.id_categories
+                limit ${db.escape((currentPage - 1) * perPage)}, ${db.escape(perPage)};`
+
+                db.query(getProdCommon, (errGetProdCommon, resGetProdCommon) => {
+                    if (errGetProdCommon) {
+                        res.status(400).send(errGetProdCommon)
+                    }
+                    let resProdCommon = []
+                    resProdCommon.push(resGetProdCommon, { current_page: currentPage }, { per_page: perPage }, totalCommon)
+                    res.status(200).send(resProdCommon)
+                })
+            })
+
+        } else if (!name ) { //filter dengan kategori
+
+            let totalCate
+            console.log("FilterKategori")
+
+            let countCate = `select count(*) as totalItemAdmin 
+            from product p1 inner join categories c2 
+            on p1.id_categories = c2.id_categories 
+            where category_name like '%${category}%';`
+
+            db.query(countCate, (errCountCate, resCountCate) => {
+                if (errCountCate) {
+                    res.status(400).send(errCountCate)
+                }
+                totalCate = resCountCate[0]
+
+                let getProdCate = `select * from product p1 inner join categories c2 
+                on p1.id_categories = c2.id_categories 
+                where category_name like '%${category}%'
+                limit ${db.escape((currentPage - 1) * perPage)}, ${db.escape(perPage)};`
+
+                db.query(getProdCate, (errGetProdCate, resGetProdCate) => {
+                    if (errGetProdCate) {
+                        res.status(400).send(resGetProdCate)
+                    }
+                    let resProdCate = []
+                    resProdCate.push(resGetProdCate, { current_page: currentPage }, { per_page: perPage }, totalCate)
+                    res.status(200).send(resProdCate)
+                })
+            })
+
+        } else if (!category) { //filter dengan nama saja
+
+            let totalName
+            console.log("filterName")
+
+            let countName = `select count(*) as totalItemAdmin 
+            from product p1 inner join categories c2 
+            on p1.id_categories = c2.id_categories 
+            where product_name like '%${name}%';`
+
+            db.query(countName, (errCountName, resCountName) => {
+                if (errCountName) {
+                    res.status(400).send(errCountName)
+                }
+                totalName = resCountName[0]
+
+                let getProdName = `select * from product p1 inner join categories c2 
+                on p1.id_categories = c2.id_categories 
+                where product_name like '%${name}%' 
+                limit ${db.escape((currentPage - 1) * perPage)}, ${db.escape(perPage)};`
+
+                db.query(getProdName, (errGetProdName, resGetProdName) => {
+                    if (errGetProdName) {
+                        res.status(400).send(errGetProdName)
+                    }
+                    let resProdName = []
+                    resProdName.push(resGetProdName, { current_page: currentPage }, { per_page: perPage }, totalName)
+                    res.status(200).send(resProdName)
+                })
+            })
+        }
+
+    },
+
+    sortingProductAdmin: (req, res)=>{
+        const { name, category, orderBy, sortBy } = req.body
+        const currentPage = parseInt(req.query.page) || 1 //default query page
+        const perPage = parseInt(req.query.perPage) || 8 //default query per-page
+
+        //Jika filter nama & kategori
+        if (category && name) {
+
+            let totalNameCate
+            console.log("FilterNamaAndKategori")
+
+            let countNameCate = `select count(*) as totalItemAdmin 
+            from product p1 inner join categories c2 
+            on p1.id_categories = c2.id_categories 
+            where product_name like '%${name}%' and category_name like '%${category}%';`
+            // console.log("countNameCate",countNameCate)
+
+            db.query(countNameCate, (errCountNameCate, resCountNameCate) => {
+                if (errCountNameCate) {
+                    res.status(400).send(errCountNameCate)
+                }
+                totalNameCate = resCountNameCate[0]
+
+                let getProdCateName = `select * from product p1 inner join categories c2 
+                on p1.id_categories = c2.id_categories 
+                where product_name like '%${name}%' and category_name like '%${category}%'
+                order by ${orderBy} ${sortBy}  
+                limit ${db.escape((currentPage - 1) * perPage)}, ${db.escape(perPage)};`
+
+                db.query(getProdCateName, (errGetProdCateName, resGetProdNameCate) => {
+                    if (errGetProdCateName) {
+                        res.status(400).send(errGetProdCateName)
+                    }
+                    let resProdNameCate = []
+                    resProdNameCate.push(resGetProdNameCate, { current_page: currentPage }, { per_page: perPage }, totalNameCate)
+                    res.status(200).send(resProdNameCate)
+                })
+            })
+
+        } else if (!name && !category) { // filter tanpa input
+
+            let totalCommon
+            console.log("filterCommon")
+
+            let countCommon = `select count(*) as totalItemAdmin 
+            from product p1 inner join categories c2 
+            on p1.id_categories = c2.id_categories ;`
+
+            db.query(countCommon, (errCountCommon, resCountCommon) => {
+                if (errCountCommon) {
+                    res.status(400).send(errCountCommon)
+                }
+                totalCommon = resCountCommon[0]
+
+                let getProdCommon = `select * from product p1 inner join categories c2 
+                on p1.id_categories = c2.id_categories
+                order by ${orderBy} ${sortBy}
+                limit ${db.escape((currentPage - 1) * perPage)}, ${db.escape(perPage)};`
+
+                db.query(getProdCommon, (errGetProdCommon, resGetProdCommon) => {
+                    if (errGetProdCommon) {
+                        res.status(400).send(errGetProdCommon)
+                    }
+                    let resProdCommon = []
+                    resProdCommon.push(resGetProdCommon, { current_page: currentPage }, { per_page: perPage }, totalCommon)
+                    res.status(200).send(resProdCommon)
+                })
+            })
+
+        } else if (!name) { //filter dengan kategori
+            let totalCate
+            console.log("FilterKategori")
+
+            let countCate = `select count(*) as totalItemAdmin 
+            from product p1 inner join categories c2 
+            on p1.id_categories = c2.id_categories 
+            where category_name like '%${category}%';`
+
+            db.query(countCate, (errCountCate, resCountCate) => {
+                if (errCountCate) {
+                    res.status(400).send(errCountCate)
+                }
+                totalCate = resCountCate[0]
+
+                let getProdCate = `select * from product p1 inner join categories c2 
+                on p1.id_categories = c2.id_categories 
+                where category_name like '%${category}%'
+                order by ${orderBy} ${sortBy} 
+                limit ${db.escape((currentPage - 1) * perPage)}, ${db.escape(perPage)};`
+
+                db.query(getProdCate, (errGetProdCate, resGetProdCate) => {
+                    if (errGetProdCate) {
+                        res.status(400).send(resGetProdCate)
+                    }
+                    let resProdCate = []
+                    resProdCate.push(resGetProdCate, { current_page: currentPage }, { per_page: perPage }, totalCate)
+                    res.status(200).send(resProdCate)
+                })
+            })
+
+
+        } else if (!category) { //filter dengan nama saja
+
+            let totalName
+            console.log("filterName")
+
+            let countName = `select count(*) as totalItemAdmin
+            from product p1 inner join categories c2 
+            on p1.id_categories = c2.id_categories 
+            where product_name like '%${name}%';`
+
+            db.query(countName, (errCountName, resCountName) => {
+                if (errCountName) {
+                    res.status(400).send(errCountName)
+                }
+                totalName = resCountName[0]
+
+                let getProdName = `select * from product p1 inner join categories c2 
+                on p1.id_categories = c2.id_categories 
+                where product_name like '%${name}%'
+                order by ${orderBy} ${sortBy}
+                limit ${db.escape((currentPage - 1) * perPage)}, ${db.escape(perPage)};`
+
+                db.query(getProdName, (errGetProdName, resGetProdName) => {
+                    if (errGetProdName) {
+                        res.status(400).send(errGetProdName)
+                    }
+                    let resProdName = []
+                    resProdName.push(resGetProdName, { current_page: currentPage }, { per_page: perPage }, totalName)
+                    res.status(200).send(resProdName)
+                })
+            })
         }
     }
     // addCategories: (req, res) => {

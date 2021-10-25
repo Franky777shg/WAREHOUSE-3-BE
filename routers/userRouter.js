@@ -34,6 +34,7 @@ router.post("/update-user/", verifyToken, userController.updateUser);
 router.post("/upload-pic/", verifyToken, userController.uploadPhoto);
 router.post("/delete-pic/", verifyToken, userController.deleteUserPhoto);
 
+ 
 router.post("/change-password/", verifyToken, userController.changePass);
 router.post("/get-useraddress/", verifyToken, userController.getUserAddress);
 router.post(
@@ -51,5 +52,6 @@ router.post("/get-user/", verifyToken, userController.getDataUser);
 router.post("/update-user/", verifyToken, userController.updateUser);
 router.post("/upload-pic/", uploader, verifyToken, userController.uploadPhoto);
 router.post("/delete-pic/", verifyToken, userController.deleteUserPhoto);
+ 
 
 module.exports = router;
