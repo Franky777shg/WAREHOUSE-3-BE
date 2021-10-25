@@ -31,6 +31,10 @@ router.post(
 );
 
 router.post("/getPaymentStatus", transactionController.getPaymentStatus);
+router.post("/getOrderStatus", transactionController.getOrderStatus);
 router.post("/uploadPayment", transactionController.uploadPayment);
+router.post("/orderArrived", transactionController.orderArrived);
+
+router.post("/getHistory", verifyToken, transactionController.getHistory);
 
 module.exports = router;
