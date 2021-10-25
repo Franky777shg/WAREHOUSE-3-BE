@@ -37,9 +37,7 @@ router.post("/delete-pic/", verifyToken, userController.deleteUserPhoto);
  
 router.post("/change-password/", verifyToken, userController.changePass);
 router.post("/get-useraddress/", verifyToken, userController.getUserAddress);
-router.post(
-  "/get-update-user-address/",
-  verifyToken,
+router.post( "/get-update-user-address/:id",verifyToken,
   userController.updateUserAddress
 );
 router.post(

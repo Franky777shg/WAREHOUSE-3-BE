@@ -206,8 +206,12 @@ module.exports = {
     address='${editData.address}', 
     kecamatan='${editData.kecamatan}', 
     kabupaten='${editData.kabupaten}', 
-    status_aktif='${editData.status_aktif}' 
-    WHERE id_user = ${idUser}`;
+    provinsi='${editData.provinsi}', 
+    address_type='${editData.tipe_alamat}',
+    address_phone='${editData.hp}', 
+    package_recipient='${editData.penerima}' 
+
+    WHERE id_address = ${editData.idaddress}`;
     db.query(updateUserAddress, req.body, (err, result) => {
       if (err) {
         console.log(err);
