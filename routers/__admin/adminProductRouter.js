@@ -8,6 +8,8 @@ router.post('/get-product-admin', adminProductController.getAllProdAdmin)
 router.get('/get-product-admin-detail/:id', adminProductController.getProdAdminDetail)
 router.get('/get-categories', adminProductController.getCategories)
 router.get('/get-detail-stock-op/:id', adminProductController.getProdDetailStockOperational)
+router.post('/filter-product', adminProductController.filteringProductAdmin)
+router.post('/sort-product', adminProductController.sortingProductAdmin)
 
 router.post('/edit-product/:id', adminProductController.editProduct)
 router.post('/edit-detailfoto/:id', uploader, adminProductController.uploadEditProdDetail)
@@ -24,5 +26,6 @@ router.post('/product-sales-report', adminProductController.prodSalesReport)
 router.get('/product-revenue', adminProductController.prodRevenue)
 router.get('/product-revenue-total', adminProductController.prodRevenueTotal)
 router.post('/product-revenue-date', adminProductController.prodRevenueDates)
+router.get('/product-most-buy', adminProductController.mostBuyProduct)
 
 module.exports = router

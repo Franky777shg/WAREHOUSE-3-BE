@@ -294,14 +294,20 @@ module.exports = {
     },
 
     getProductDetail:(req, res) =>{
-        let prodDetail =  `select * from product p1
-        inner join categories c1 on p1.id_categories = c1.id_categories
-        inner join (select id_product,  sum(stock_avail) as TotalStockAvail 
-        from stock group by id_product order by TotalStockAvail) s1
-        on p1.id_product = s1.id_product
-        where p1.id_product = ${req.params.idprod}
-        group by p1.id_product ;`
-
+        // let prodDetail =  `select * from product p1
+        // inner join categories c1 on p1.id_categories = c1.id_categories
+        // inner join (select id_product,  sum(stock_avail) as TotalStockAvail 
+        // from stock group by id_product order by TotalStockAvail) s1
+        // on p1.id_product = s1.id_product
+        // where p1.id_product = ${req.params.idprod}
+        // group by p1.id_product ;`
+        let prodDetail = `select p1.id_product, p1.product_name, p1.id_categories, p1.product_price, p1.productimg, p1.product_description, 
+        c1.category_name, sum(s1.stock_op) -  sum(s1.stock_booked) as TotalStockAvail
+        from stock s1
+        join product p1 on p1.id_product = s1.id_product
+        join categories c1 on p1.id_categories = c1.id_categories
+        where s1.id_product = ${req.params.idprod} 
+        group by s1.id_product;`
         db.query(prodDetail, (errProductDetail, resProductDetail) => {
             if(errProductDetail) {
                 console.log(errProductDetail)
